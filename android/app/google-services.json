@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "754260148515",
+    "project_id": "ridealongdb-fe563",
+    "storage_bucket": "ridealongdb-fe563.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754260148515:android:98cd0f24a07cfa9d7acc96",
+        "android_client_info": {
+          "package_name": "com.example.journey2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "754260148515-1g3vq6j91108e2tn4e829nlrcfktm9uv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUQlM83e6_lAMEExpNm27m671mUG0C3aU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "754260148515-1g3vq6j91108e2tn4e829nlrcfktm9uv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "754260148515-ftessd32quakjf4e7bov0bfa6ih0hnfb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "rideAlong.ridealongmobile"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754260148515:android:f88ded209786b4a07acc96",
+        "android_client_info": {
+          "package_name": "io.rideAlong.ridealongapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "754260148515-1g3vq6j91108e2tn4e829nlrcfktm9uv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUQlM83e6_lAMEExpNm27m671mUG0C3aU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "754260148515-1g3vq6j91108e2tn4e829nlrcfktm9uv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "754260148515-ftessd32quakjf4e7bov0bfa6ih0hnfb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "rideAlong.ridealongmobile"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
