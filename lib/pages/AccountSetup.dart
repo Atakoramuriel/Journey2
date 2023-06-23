@@ -1294,6 +1294,24 @@ class _AccountSetupState extends State<AccountSetup> {
     );
   }
 
+  Future<void> updateProfileImg() async {
+    var userID = FirebaseAuth.instance.currentUser?.uid; //Get the userid first
+
+    await FirebaseFirestore.instance
+        .collection("Riders")
+        .doc(userID)
+        .get()
+        .then((value) {
+      if (value.exists) {
+        print("Value Found" + value.data()!['profileImg'].toString());
+
+        FirebaseAuth.instance.currentUser
+            ?.updatePhotoURL(value.data()!['profileImg'].toString())
+            .then((value) => {print("Updated Profile")});
+      } else {}
+    });
+  }
+
   Future<void> _createUserProfile() async {
     var currentUser = Auth().currentUser;
 
@@ -1335,6 +1353,7 @@ class _AccountSetupState extends State<AccountSetup> {
           padding: const EdgeInsets.fromLTRB(110, 10, 110, 10),
           backgroundColor: Colors.red[800]),
       onPressed: () async {
+        updateProfileImg();
         setState(() {
           _createUserProfile();
         });

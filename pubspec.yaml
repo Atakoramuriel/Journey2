@@ -61,6 +61,8 @@ flutter:
     - assets/images/TempLogo.PNG
     - assets/images/GLogo.png
     - assets/images/AzerPromo.png
+    - assets/gifs/Vex&Siren.GIF
+    - assets/gifs/VS2.GIF
 
   # To add assets to your application, add an assets section, like this:
   # assets:

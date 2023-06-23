@@ -33,10 +33,10 @@ class _HomePageState extends State<HomePage> {
   //Current User
   var userProfileImage = FirebaseAuth.instance.currentUser?.photoURL.toString();
   final User? user = Auth().currentUser;
-  int currentTab = 0;
+  int currentTab = 3;
   final List<Widget> screens = [const MapView(), ProfileView()];
   final PageStorageBucket bucket = PageStorageBucket();
-  Widget currentScreen = const MapView();
+  Widget currentScreen = ProfileView();
 
   //Some functions
   Future<void> signOut() async {
@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
-        color: kPrimaryColor,
+        color: Colors.purple[900],
         child: SizedBox(
           height: 60,
           child: Row(

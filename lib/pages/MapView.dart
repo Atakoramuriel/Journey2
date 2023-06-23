@@ -133,6 +133,7 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     var username = FirebaseAuth.instance.currentUser?.displayName.toString();
 
     return MaterialApp(
@@ -144,10 +145,34 @@ class _MapViewState extends State<MapView> {
       ),
       home: Scaffold(
           body: currentLocation == null
-              ? const Center(
-                  child: Text(
-                    "Loading...",
-                    style: TextStyle(color: Colors.white),
+              ? Container(
+                  height: size.height,
+                  width: size.width,
+                  color: Colors.black,
+                  child: Column(
+                    children: [
+                      Spacer(),
+                      Text(
+                        "Loading",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: size.width * 0.08),
+                      ),
+                      Image.asset(
+                        "assets/gifs/VS2.GIF",
+                        height: size.width,
+                        width: size.width,
+                      ),
+                      Text(
+                        "Map View. . .",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: size.width * 0.08),
+                      ),
+                      Spacer()
+                    ],
                   ),
                 )
               : _mapScreen()),
