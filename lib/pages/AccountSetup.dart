@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -62,6 +64,7 @@ class _AccountSetupState extends State<AccountSetup> {
     "https://firebasestorage.googleapis.com/v0/b/ridealongdb-fe563.appspot.com/o/StockProfiles%2FA13.png?alt=media&token=b70dd361-df03-469d-8cb9-e8702a7afd44",
     "https://firebasestorage.googleapis.com/v0/b/ridealongdb-fe563.appspot.com/o/StockProfiles%2FA14.png?alt=media&token=356eb626-957b-493f-ad5b-5fe19de1a9da",
   ];
+
   int _focusedImageIndex = 0;
 
   var headers = [
@@ -72,6 +75,660 @@ class _AccountSetupState extends State<AccountSetup> {
     "Now tell us about your Ride",
     "Review your profile"
   ];
+
+  //Motorcycle Makes
+  List<String> motorcycleMakes = [
+    'Select Make...',
+    'Honda',
+    'Yamaha',
+    'Kawasaki',
+    'Suzuki',
+    'Ducati',
+    'Harley-Davidson',
+    'BMW',
+    'Triumph',
+    'KTM',
+    'Aprilia',
+    'MV Agusta',
+    'Indian',
+    'Victory',
+    'Moto Guzzi',
+    'Husqvarna',
+    'Buell',
+    'Piaggio',
+    'Royal Enfield',
+    'Can-Am',
+    'Zero',
+    'Hyosung',
+    'Benelli',
+    'Kymco',
+    'Bajaj',
+    'SYM',
+    'Daelim',
+    'Lambretta',
+    'GAS GAS',
+    'Keeway',
+    'Vespa',
+    'Derbi',
+    'SWM',
+    'Oset',
+    'Energica',
+    'Ural',
+    'Cagiva',
+    'Moto Morini',
+    'Hesketh',
+    'CZ',
+    'Norton',
+    'Fantic',
+    'Rieju',
+    'Zontes',
+    'Mondial',
+    'AJP',
+    'Skyteam',
+    'Bimota',
+    'Mash',
+    'Horex',
+    'Patronus',
+    'Other...'
+  ];
+
+  //Motorcycle Colors
+  List<String> motorcycleColors = [
+    'Select Color...',
+    'Black',
+    'White',
+    'Red',
+    'Blue',
+    'Silver',
+    'Yellow',
+    'Green',
+    'Orange',
+    'Gray',
+    'Purple',
+    'Gold',
+    'Brown',
+    'Burgundy',
+    'Pink',
+    'Turquoise',
+    'Beige',
+    'Bronze',
+    'Teal',
+    'Olive',
+    'Copper',
+    'Lime',
+    'Magenta',
+    'Indigo',
+    'Charcoal',
+    'Navy',
+  ];
+
+  //Motorcycle Years
+  List<String> past100Years = [
+    'Select Year...',
+    '2025',
+    '2024',
+    '2023',
+    '2022',
+    '2021',
+    '2020',
+    '2019',
+    '2018',
+    '2017',
+    '2016',
+    '2015',
+    '2014',
+    '2013',
+    '2012',
+    '2011',
+    '2010',
+    '2009',
+    '2008',
+    '2007',
+    '2006',
+    '2005',
+    '2004',
+    '2003',
+    '2002',
+    '2001',
+    '2000',
+    '1999',
+    '1998',
+    '1997',
+    '1996',
+    '1995',
+    '1994',
+    '1993',
+    '1992',
+    '1991',
+    '1990',
+    '1989',
+    '1988',
+    '1987',
+    '1986',
+    '1985',
+    '1984',
+    '1983',
+    '1982',
+    '1981',
+    '1980',
+    '1979',
+    '1978',
+    '1977',
+    '1976',
+    '1975',
+    '1974',
+    '1973',
+    '1972',
+    '1971',
+    '1970',
+    '1969',
+    '1968',
+    '1967',
+    '1966',
+    '1965',
+    '1964',
+    '1963',
+    '1962',
+    '1961',
+    '1960',
+    '1959',
+    '1958',
+    '1957',
+    '1956',
+    '1955',
+    '1954',
+    '1953',
+    '1952',
+    '1951',
+    '1950',
+    '1949',
+    '1948',
+    '1947',
+    '1946',
+    '1945',
+    '1944',
+    '1943',
+    '1942',
+    '1941',
+    '1940',
+    '1939',
+    '1938',
+    '1937',
+    '1936',
+    '1935',
+    '1934',
+    '1933',
+    '1932',
+    '1931',
+    '1930',
+    '1929',
+    '1928',
+    '1927',
+    '1926',
+    '1925',
+    '1924',
+    '1923',
+    '1922',
+    '1921',
+    '1920',
+  ];
+
+  //Models
+  List<String> hondaModels = [
+    'CBR1000RR',
+    'CBR600RR',
+    'CRF250L',
+    'CRF450R',
+    'Africa Twin',
+    'Rebel 500',
+    'CB500F',
+    'CB650R',
+    'Gold Wing',
+    'NC750X',
+    'CBR650R',
+    'CB300R',
+    'CB1000R',
+    'CRF300L',
+    'CB125R',
+    'Forza 350',
+    'PCX160',
+    'X-ADV',
+    'SH150i',
+    'CB500X',
+    'CRF1100L Africa Twin',
+    'CRF250R',
+    'Monkey',
+    'Super Cub C125',
+    'MSX125 Grom',
+  ];
+
+  List<String> yamahaModels = [
+    'YZF-R1',
+    'YZF-R6',
+    'MT-07',
+    'MT-09',
+    'MT-03',
+    'MT-10',
+    'YZF-R3',
+    'YZF-R15',
+    'XSR900',
+    'XSR700',
+    'Tracer 900 GT',
+    'Tracer 700',
+    'Tenere 700',
+    'YZF-R125',
+    'MT-125',
+    'MT-25',
+    'YZ450F',
+    'YZ250F',
+    'Niken',
+    'FJR1300',
+    'XTZ 700 Tenere',
+    'XT660Z Tenere',
+    'VMAX',
+    'XMAX 300',
+    'TMAX',
+  ];
+
+  List<String> kawasakiModels = [
+    'Ninja ZX-10R',
+    'Ninja 650',
+    'Z900',
+    'Versys 650',
+    'Z650',
+    'Z400',
+    'Ninja 400',
+    'Vulcan S',
+    'Ninja H2',
+    'Z1000',
+    'Versys 1000',
+    'Z125',
+    'Ninja 1000SX',
+    'Ninja H2 SX',
+    'Ninja ZX-6R',
+    'KLX230',
+    'KLX300R',
+    'Z H2',
+    'Z900RS',
+    'KX450',
+    'Z650 Performance',
+    'Ninja 650 KRT',
+    'Z400 Performance',
+    'Ninja 400 KRT',
+    'Z H2 SE',
+  ];
+
+  List<String> suzukiModels = [
+    'GSX-R1000',
+    'GSX-R750',
+    'GSX-S750',
+    'GSX-R600',
+    'GSX-S1000',
+    'V-Strom 650',
+    'Hayabusa',
+    'SV650',
+    'V-Strom 1050',
+    'Burgman 400',
+    'GSX250R',
+    'GSX-S750Z',
+    'V-Strom 250',
+    'SV650X',
+    'RM-Z450',
+    'RM-Z250',
+    'DR650S',
+    'DR-Z400S',
+    'DR200S',
+    'GSX-S1000F',
+    'RM85',
+    'SV650 ABS',
+    'Boulevard M50',
+    'Boulevard M109R',
+    'V-Strom 1050XT',
+  ];
+
+  List<String> ducatiModels = [
+    'Panigale V4',
+    'Panigale V2',
+    'Monster',
+    'Scrambler',
+    'Streetfighter V4',
+    'Diavel',
+    'Multistrada V4',
+    'SuperSport',
+    'Hypermotard',
+    'Supersport 950',
+    'Monster 797',
+    'Scrambler 1100',
+    'Monster 821',
+    'Multistrada 950',
+    'Scrambler Desert Sled',
+    'Panigale V4 R',
+    'XDiavel',
+    'Panigale V4 S',
+    'Diavel 1260',
+    'Scrambler Sixty2',
+    'Hypermotard 950',
+    'Scrambler Cafe Racer',
+    'Panigale V4 SP',
+    'Monster 1200',
+    'Monster 937',
+  ];
+
+  List<String> harleyDavidsonModels = [
+    'Street Glide',
+    'Road Glide',
+    'Road King',
+    'Fat Boy',
+    'Iron 883',
+    'Forty-Eight',
+    'Sportster',
+    'Softail',
+    'Fat Bob',
+    'Low Rider',
+    'Street Bob',
+    'Heritage Classic',
+    'Roadster',
+    'Breakout',
+    'Electra Glide',
+    'CVO',
+    'SuperLow',
+    'Tri Glide',
+    'Screamin\' Eagle',
+    'Ultra Limited',
+    'Freewheeler',
+    'Street Rod',
+    'Deluxe',
+    'Street 750',
+    'Livewire',
+  ];
+
+  List<String> bmwModels = [
+    'S1000RR',
+    'R1250GS',
+    'F850GS',
+    'R nineT',
+    'K1600GTL',
+    'G310R',
+    'S1000XR',
+    'R1250RT',
+    'F750GS',
+    'F900R',
+    'R18',
+    'R1200GS',
+    'F800GS',
+    'S1000R',
+    'G310GS',
+    'R1250RS',
+    'F850R',
+    'K1600B',
+    'S1000XR',
+    'R1250R',
+    'F900XR',
+    'C400X',
+    'R1250GS Adventure',
+    'R nineT Scrambler',
+    'K1600 Grand America',
+  ];
+
+  List<String> triumphModels = [
+    'Street Triple',
+    'Tiger 800',
+    'Bonneville T120',
+    'Tiger 1200',
+    'Speed Triple',
+    'Rocket 3',
+    'Thruxton',
+    'Scrambler 1200',
+    'Speed Twin',
+    'Tiger 900',
+    'Street Twin',
+    'Bonneville Bobber',
+    'Daytona Moto2 765',
+    'Tiger 850 Sport',
+    'Bonneville T100',
+    'Scrambler 900',
+    'Tiger 1200 Alpine Edition',
+    'Street Scrambler',
+    'Tiger Sport',
+    'Bonneville Speedmaster',
+    'Tiger 1200 Desert Edition',
+    'Thruxton RS',
+    'Bonneville Street Twin',
+    'Tiger 1200 GT',
+    'Rocket 3 GT',
+  ];
+
+  List<String> ktmModels = [
+    'Duke 390',
+    'RC 390',
+    'Adventure 390',
+    'Duke 200',
+    'Adventure 250',
+    'RC 200',
+    'Duke 125',
+    'Adventure 790',
+    'Super Adventure 1290',
+    'Duke 690',
+    'Adventure 690',
+    'RC 125',
+    'Super Duke R',
+    'Adventure 1090',
+    'Super Adventure S',
+    'Duke 790',
+    'RC 250',
+    'Duke 890',
+    'Adventure 1290',
+    'Freeride 250 F',
+    'SX 85',
+    'EXC 350 F',
+    'XC-W 300',
+    'Enduro 690',
+    'Freeride E-XC',
+  ];
+
+  List<String> apriliaModels = [
+    'RS 125',
+    'RSV4',
+    'Tuono V4',
+    'Dorsoduro',
+    'RS 660',
+    'Shiver',
+    'Tuono 125',
+    'SR 125',
+    'RS 50',
+    'Tuono 660',
+    'Tuono V4 Factory',
+    'RSV4 Factory',
+    'RSV4 RR',
+    'RSV4 RF',
+    'Tuono V4 X',
+    'SR 160',
+    'RS 660 Factory',
+    'RS 660 Trofeo',
+    'RS 660 Ténéré',
+    'RS 660 R',
+    'RSV4 R FW-GP',
+    'Tuono 660 Factory',
+    'RSV4 X',
+    'RSV4 R FW',
+    'Tuono V4 1100 Factory',
+  ];
+
+  List<String> mvAgustaModels = [
+    'Brutale 800',
+    'F3 800',
+    'Dragster 800',
+    'F4',
+    'Brutale 1000',
+    'F3 675',
+    'Turismo Veloce',
+    'Dragster 800 RR',
+    'F4 RR',
+    'Brutale 800 RR',
+    'Superveloce 800',
+    'F3 800 RC',
+    'Brutale 800 RC',
+    'Dragster 800 RC',
+    'F4 RC',
+    'F3 675 RC',
+    'Brutale 1000 RR',
+    'Dragster 800 RR SCS',
+    'Brutale 800 RR SCS',
+    'Turismo Veloce Lusso',
+    'F4 RC',
+    'F3 800 RC',
+    'Dragster 800 RC',
+    'Brutale 800 RC',
+    'Superveloce 800 Serie Oro',
+  ];
+
+  List<String> indianModels = [
+    'Chief',
+    'Scout',
+    'Chieftain',
+    'Springfield',
+    'Roadmaster',
+    'FTR',
+    'Scout Bobber',
+    'Chieftain Dark Horse',
+    'Challenger',
+    'Chief Dark Horse',
+    'Vintage',
+    'FTR Rally',
+    'Chieftain Elite',
+    'Chief Bobber Dark Horse',
+    'Springfield Dark Horse',
+    'Scout Bobber Twenty',
+    'FTR Carbon',
+    'Chieftain Limited',
+    'Scout Bobber Sixty',
+    'Chieftain Classic',
+    'Roadmaster Dark Horse',
+    'Scout 100th Anniversary',
+    'Challenger Dark Horse',
+    'Chief Vintage Dark Horse',
+    'Chief Bobber 100th Anniversary',
+  ];
+
+  List<String> victoryModels = [
+    'Cross Country',
+    'Cross Country Tour',
+    'Octane',
+    'Gunner',
+    'Magnum',
+    'High-Ball',
+    'Vegas',
+    'Vision',
+    'Hammer',
+    'Kingpin',
+    'Boardwalk',
+    'Judge',
+    'Cross Roads',
+    'Zach Ness Vegas',
+    'Cross Country 8-Ball',
+    'Vegas 8-Ball',
+    'Cory Ness Cross Country',
+    'Cory Ness Magnum',
+    'V92C',
+    'Ness Magnum',
+    'Jackpot',
+    'Ness Cross Country',
+    'Vegas Jackpot',
+    'Arlen Ness Vision',
+    'Ness Vegas',
+  ];
+
+  List<String> motoGuzziModels = [
+    'V7',
+    'V85 TT',
+    'V9',
+    'V85 TT Travel',
+    'V7 III',
+    'V7 Stone',
+    'V7 III Racer',
+    'V7 III Special',
+    'V7 III Rough',
+    'V7 III Milano',
+    'V7 III Carbon',
+    'V85 TT Adventure',
+    'V7 III Limited',
+    'V7 III Anniversario',
+    'V7 III Stone',
+    'V7 III Stone Night Pack',
+    'V7 III Stone S',
+    'V7 III Racer Limited',
+    'V7 III Rough Night Pack',
+    'V7 III Special Night Pack',
+    'V7 III Milano Night Pack',
+    'V7 III Carbon Dark',
+    'V9 Bobber',
+    'V9 Roamer',
+    'V9 Roamer Night Pack',
+  ];
+
+  List<String> husqvarnaModels = [
+    'Svartpilen 401',
+    'Vitpilen 401',
+    'Svartpilen 250',
+    'Vitpilen 250',
+    'Svartpilen 125',
+    'Vitpilen 125',
+    '701 Enduro',
+    '701 Supermoto',
+    '701 Enduro LR',
+    'FC 450',
+    'FE 450',
+    'TE 300i',
+    'FE 250',
+    'FE 501',
+    'FC 250',
+    'TC 250',
+    'FS 450',
+    'FX 450',
+    'TC 125',
+    'TE 150i',
+    'FC 350',
+    'FE 350',
+    'TE 250i',
+    'FE 501s',
+    'TC 85',
+  ];
+
+  List<String> buellModels = [
+    'XB12R Firebolt',
+    'XB9R Firebolt',
+    'XB12S Lightning',
+    '1125R',
+    '1125CR',
+    'XB12X Ulysses',
+    'XB9SX Lightning CityX',
+    'XB9S Lightning',
+    '1125RR',
+    'RS1200 Westwind',
+    'RS1200S Westwind',
+    'XB12XT Ulysses',
+    'RR1000 Battletwin',
+    'RR1200 Battletwin',
+    'XB12STT Ulysses',
+    'XB12XP Ulysses Police',
+    'XB9TT Lightning',
+    'RS1200S Battletwin',
+    'RR1200 Battletwin Race',
+    'RS1200S Corsa',
+    'S3 Thunderbolt',
+    'S3T Thunderbolt',
+    'RR1200 Battletwin Road',
+    'M2 Cyclone',
+    'X1 Lightning',
+  ];
+
+  String? selectedMake = 'Select Make...';
+  String? selectedModel = "Select Model...";
+  String? selectedColor = "Select Color...";
+  String? selectedYear = "Select Year...";
+
+  final TextEditingController textEditingController = TextEditingController();
+
   var pageindex = 0;
   File? _image;
 
@@ -492,6 +1149,13 @@ class _AccountSetupState extends State<AccountSetup> {
     });
   }
 
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget _buildItemList(BuildContext context, int index) {
     if (index == profileImageList.length) {
       return const Center(
@@ -588,7 +1252,7 @@ class _AccountSetupState extends State<AccountSetup> {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
           textStyle: const TextStyle(fontSize: 25),
-          padding: const EdgeInsets.fromLTRB(145, 10, 145, 10),
+          padding: const EdgeInsets.fromLTRB(130, 10, 130, 10),
           side: const BorderSide(color: kPrimaryAccentColor, width: 3.0),
           backgroundColor: kPrimaryAccentColor),
       onPressed: () async {
@@ -605,8 +1269,8 @@ class _AccountSetupState extends State<AccountSetup> {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
           textStyle: const TextStyle(fontSize: 25),
-          padding: const EdgeInsets.fromLTRB(145, 10, 145, 10),
-          backgroundColor: Colors.red[800]),
+          padding: const EdgeInsets.fromLTRB(130, 10, 130, 10),
+          backgroundColor: Colors.purple[800]),
       onPressed: () async {
         setState(() {
           if (_motoColorController.text == "" ||
@@ -668,7 +1332,7 @@ class _AccountSetupState extends State<AccountSetup> {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
           textStyle: const TextStyle(fontSize: 25),
-          padding: const EdgeInsets.fromLTRB(145, 10, 145, 10),
+          padding: const EdgeInsets.fromLTRB(110, 10, 110, 10),
           backgroundColor: Colors.red[800]),
       onPressed: () async {
         setState(() {
@@ -723,6 +1387,14 @@ class _AccountSetupState extends State<AccountSetup> {
     );
   }
 
+  //Hold
+  // decoration: BoxDecoration(
+  //   image: DecorationImage(
+  //     image: AssetImage("assets/images/AzerPromo.png"),
+  //     fit: BoxFit.cover,
+  //   ),
+  // ),
+
   @override
   Widget build(BuildContext context) {
     //starting variables
@@ -730,348 +1402,453 @@ class _AccountSetupState extends State<AccountSetup> {
     return Scaffold(
         backgroundColor: kBackgroundColor,
         body: Container(
-            height: size.height,
-            width: size.width,
-            padding: const EdgeInsets.all(0),
-            child: Stack(
-              children: [
-                SafeArea(
-                    child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: kDefaultPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
+          height: size.height,
+          width: size.width,
+          child: Stack(
+            children: [
+              Container(
+                height: size.height,
+                width: size.width,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/images/AzerPromo.png"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: Container(
+                    decoration:
+                        BoxDecoration(color: Colors.white.withOpacity(0.0)),
+                  ),
+                ),
+              ),
+              Container(
+                  height: size.height,
+                  width: size.width,
+                  padding: const EdgeInsets.all(0),
+                  child: Stack(
                     children: [
-                      const Spacer(
-                        flex: 1,
-                      ),
-                      _title(),
+                      SafeArea(
+                          child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: kDefaultPadding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Spacer(
+                              flex: 1,
+                            ),
 
-                      const Spacer(
-                        flex: 1,
-                      ),
+                            const Spacer(
+                              flex: 1,
+                            ),
 
-                      //A Mess to be cleaned later
+                            //A Mess to be cleaned later
 
-                      //Starting with subtitle
-                      if (pageindex == 0) ...[
-                        _subTitle(),
-                        Text(
-                          errorMsg,
-                          style: TextStyle(
-                              color: Colors.red[700],
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                            //Starting with subtitle
+                            if (pageindex == 0) ...[
+                              SizedBox(
+                                height: size.height * 0.3,
+                              ),
+                              _title(),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                              _subTitle(),
+                              Text(
+                                errorMsg,
+                                style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
 
-                      //Start with getting username
-                      if (pageindex == 1) ...[
-                        Text(
-                          errorMsg,
-                          style: TextStyle(
-                              fontSize: 25,
-                              color: Colors.red[700],
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 40,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: kDefaultPadding),
-                          child:
-                              _entryField('Username. . .', _usernameController),
-                        )
-                      ],
+                            //Start with getting username
+                            if (pageindex == 1) ...[
+                              SizedBox(
+                                height: size.height * 0.3,
+                              ),
+                              _title(),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                errorMsg,
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: kDefaultPadding),
+                                child: _entryField(
+                                    'Username. . .', _usernameController),
+                              )
+                            ],
 
-                      //Continue with getting photoURL or image upload
-                      if (pageindex == 2) ...[
-                        if (selectedImg != "" && !selectedFile) ...[
-                          CircleAvatar(
-                            radius: 55,
-                            backgroundImage: NetworkImage(selectedImg),
-                          ),
-                        ],
-                        if (selectedGalleryImg != null && selectedFile) ...[
-                          CircleAvatar(
-                            radius: 55,
-                            backgroundImage: FileImage(selectedGalleryImg!),
-                          )
-                        ],
-                        const SizedBox(height: 15),
-                        Expanded(
-                            flex: 4,
-                            child: ScrollSnapList(
-                              itemBuilder: _buildItemList,
-                              itemSize: 475,
-                              allowAnotherDirection: true,
-                              dynamicItemSize: false,
-                              onItemFocus: _onItemFocus,
-                              onReachEnd: () {},
-                              itemCount: profileImageList.length,
-                            )),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        const Text(
-                          " -- or --",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        const Text(
-                          "Upload your own profile Photo",
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: _getImage,
-                              child: RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    WidgetSpan(
-                                      child: Icon(
-                                        Icons.camera_alt,
-                                        size: 25,
-                                        color: Colors.white,
+                            //Continue with getting photoURL or image upload
+                            if (pageindex == 2) ...[
+                              if (selectedImg != "" && !selectedFile) ...[
+                                CircleAvatar(
+                                  radius: 55,
+                                  backgroundImage: NetworkImage(selectedImg),
+                                ),
+                              ],
+                              if (selectedGalleryImg != null &&
+                                  selectedFile) ...[
+                                CircleAvatar(
+                                  radius: 55,
+                                  backgroundImage:
+                                      FileImage(selectedGalleryImg!),
+                                )
+                              ],
+                              const SizedBox(height: 15),
+                              Expanded(
+                                  flex: 4,
+                                  child: ScrollSnapList(
+                                    itemBuilder: _buildItemList,
+                                    itemSize: 475,
+                                    allowAnotherDirection: true,
+                                    dynamicItemSize: false,
+                                    onItemFocus: _onItemFocus,
+                                    onReachEnd: () {},
+                                    itemCount: profileImageList.length,
+                                  )),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              const Text(
+                                " -- or --",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              const Text(
+                                "Upload your own profile Photo",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onTap: _getImage,
+                                    child: RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          WidgetSpan(
+                                            child: Icon(
+                                              Icons.camera_alt,
+                                              size: 25,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: " Select Image to upload",
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    TextSpan(
-                                      text: " Select Image to upload",
-                                    ),
-                                  ],
-                                ),
+                                  )
+                                ],
+                              )
+                            ],
+
+                            //Tell us about yourself
+                            if (pageindex == 3) ...[
+                              Text(
+                                errorMsg,
+                                style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.bold),
                               ),
-                            )
-                          ],
-                        )
-                      ],
-
-                      //Tell us about yourself
-                      if (pageindex == 3) ...[
-                        Text(
-                          errorMsg,
-                          style: TextStyle(
-                              color: Colors.red[700],
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                            height: size.height * 0.5,
-                            padding: const EdgeInsets.all(3.0),
-                            child: SingleChildScrollView(
-                                child: Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: _getImage,
-                                  child: CircleAvatar(
-                                    radius: 75,
-                                    backgroundImage: NetworkImage(selectedImg),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: size.height * 0.03,
-                                ),
-                                _entryField(
-                                    'Username. . .', _usernameController),
-                                const SizedBox(
-                                  height: 45,
-                                ),
-                                _entryTextField(
-                                    'Profile Bio...', _bioController),
-                              ],
-                            )))
-                      ],
-
-                      //For the bike make and model
-                      if (pageindex == 4) ...[
-                        //Get Make
-                        Container(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Column(children: [
-                            Text(
-                              errorMsg,
-                              style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            _entryField("Make...", _motoMakeController),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            //Get Model
-                            _entryField("Model...", _motoModelController),
-
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            //Get Color
-                            _entryField("Color...", _motoColorController),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            //Get Year
-                            _entryField("Year...", _motoYearController),
-
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            _saveButton(),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "-- Or --",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Skip if you don't have one",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            _skipButton()
-                          ]),
-                        )
-                      ],
-
-                      //For the final review
-                      if (pageindex == 5) ...[
-                        Container(
-                          height: 600,
-                          padding: const EdgeInsets.all(10.0),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: _getImage,
-                                  child: CircleAvatar(
-                                    radius: 75,
-                                    backgroundImage: NetworkImage(selectedImg),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-
-                                //Username
-                                GestureDetector(
-                                    onTap: () => {_routePage(1)},
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 15,
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                  height: size.height * 0.5,
+                                  padding: const EdgeInsets.all(3.0),
+                                  child: SingleChildScrollView(
+                                      child: Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: _getImage,
+                                        child: CircleAvatar(
+                                          radius: 75,
+                                          backgroundImage:
+                                              NetworkImage(selectedImg),
                                         ),
-                                        Text(
-                                          _usernameController.text,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 25),
-                                        ),
-                                      ],
-                                    )),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                _entryTextField(
-                                    'Profile Bio...', _bioController),
-                                const SizedBox(
-                                  height: 40,
-                                ),
-                                if (_motoMakeController.text == "") ...[
-                                  const Text(
-                                    "No Motorcycle Information Entered",
-                                    style: TextStyle(
-                                        color: Colors.white,
+                                      ),
+                                      SizedBox(
+                                        height: size.height * 0.03,
+                                      ),
+                                      _entryField(
+                                          'Username. . .', _usernameController),
+                                      const SizedBox(
+                                        height: 45,
+                                      ),
+                                      _entryTextField(
+                                          'Profile Bio...', _bioController),
+                                    ],
+                                  )))
+                            ],
+
+                            //For the bike make and model
+                            if (pageindex == 4) ...[
+                              //Get Make
+                              Container(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(children: [
+                                  Text(
+                                    errorMsg,
+                                    style: const TextStyle(
+                                        color: Colors.red,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 15),
+                                        fontSize: 20),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  DropdownButton<String>(
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                    dropdownColor:
+                                        const Color.fromARGB(255, 58, 19, 16),
+                                    focusColor: Colors.red,
+                                    isExpanded: true,
+                                    value: selectedMake,
+                                    onChanged: (String? val) {
+                                      setState(() {
+                                        selectedMake = val;
+                                      });
+                                    },
+                                    items: motorcycleMakes.map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
                                   ),
                                   const SizedBox(
                                     height: 30,
                                   ),
-                                  _addBikeButton(),
-                                ],
+                                  //Get Model
+                                  _entryField("Model...", _motoModelController),
 
-                                //Include Bike information if the user provided
-                                if (_motoMakeController.text != "") ...[
                                   const SizedBox(
-                                    height: 45,
+                                    height: 30,
+                                  ),
+                                  //Get Color
+                                  DropdownButton<String>(
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                    dropdownColor:
+                                        const Color.fromARGB(255, 58, 19, 16),
+                                    focusColor: Colors.red,
+                                    isExpanded: true,
+                                    value: selectedColor,
+                                    onChanged: (String? val) {
+                                      setState(() {
+                                        selectedColor = val;
+                                      });
+                                    },
+                                    items: motorcycleColors.map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                  //Get Year
+                                  DropdownButton<String>(
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                    dropdownColor:
+                                        const Color.fromARGB(255, 58, 19, 16),
+                                    focusColor: Colors.red,
+                                    isExpanded: true,
+                                    value: selectedYear,
+                                    onChanged: (String? val) {
+                                      setState(() {
+                                        selectedYear = val;
+                                      });
+                                    },
+                                    items: past100Years.map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                  _saveButton(),
+                                  const SizedBox(
+                                    height: 20,
                                   ),
                                   const Text(
-                                    "Motorcycle Information",
+                                    "-- Or --",
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15),
+                                        color: Colors.white, fontSize: 20),
                                   ),
-                                  const SizedBox(
-                                    height: 25,
-                                  ),
-                                  _entryField("Make...", _motoMakeController),
                                   const SizedBox(
                                     height: 20,
                                   ),
-                                  _entryField("Model...", _motoModelController),
+                                  const Text(
+                                    "Skip if you don't have one",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
                                   const SizedBox(
                                     height: 20,
                                   ),
-                                  _entryField("Color...", _motoColorController),
-                                  const SizedBox(
-                                    height: 20,
+                                  _skipButton()
+                                ]),
+                              )
+                            ],
+
+                            //For the final review
+                            if (pageindex == 5) ...[
+                              Container(
+                                height: 600,
+                                padding: const EdgeInsets.all(10.0),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: _getImage,
+                                        child: CircleAvatar(
+                                          radius: 75,
+                                          backgroundImage:
+                                              NetworkImage(selectedImg),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 15,
+                                      ),
+
+                                      //Username
+                                      GestureDetector(
+                                          onTap: () => {_routePage(1)},
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
+                                              Text(
+                                                _usernameController.text,
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 25),
+                                              ),
+                                            ],
+                                          )),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      _entryTextField(
+                                          'Profile Bio...', _bioController),
+                                      const SizedBox(
+                                        height: 40,
+                                      ),
+                                      if (_motoMakeController.text == "") ...[
+                                        const Text(
+                                          "No Motorcycle Information Entered",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
+                                        ),
+                                        const SizedBox(
+                                          height: 30,
+                                        ),
+                                        _addBikeButton(),
+                                      ],
+
+                                      //Include Bike information if the user provided
+                                      if (_motoMakeController.text != "") ...[
+                                        const SizedBox(
+                                          height: 45,
+                                        ),
+                                        const Text(
+                                          "Motorcycle Information",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
+                                        ),
+                                        const SizedBox(
+                                          height: 25,
+                                        ),
+                                        _entryField(
+                                            "Make...", _motoMakeController),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        _entryField(
+                                            "Model...", _motoModelController),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        _entryField(
+                                            "Color...", _motoColorController),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        _entryField(
+                                            "Year...", _motoYearController),
+                                      ],
+                                    ],
                                   ),
-                                  _entryField("Year...", _motoYearController),
-                                ],
-                              ],
+                                ),
+                              ),
+                            ],
+
+                            const Spacer(
+                              flex: 2,
                             ),
-                          ),
+                            if (pageindex != 4 && pageindex != 5) ...[
+                              _nextButton(),
+                            ],
+
+                            if (pageindex == 5) ...[_FinishButton()],
+
+                            if (pageindex >= 2 && pageindex != 4) ...[
+                              const SizedBox(
+                                height: 25,
+                              ),
+                              _prevButton()
+                            ],
+
+                            if (pageindex == 4) ...[_prevButton()],
+
+                            const Spacer(
+                              flex: 2,
+                            )
+                          ],
                         ),
-                      ],
-
-                      const Spacer(
-                        flex: 2,
-                      ),
-                      if (pageindex != 4 && pageindex != 5) ...[
-                        _nextButton(),
-                      ],
-
-                      if (pageindex == 5) ...[_FinishButton()],
-
-                      if (pageindex >= 2 && pageindex != 4) ...[
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        _prevButton()
-                      ],
-
-                      if (pageindex == 4) ...[_prevButton()],
-
-                      const Spacer(
-                        flex: 2,
-                      )
+                      ))
                     ],
-                  ),
-                ))
-              ],
-            )));
+                  ))
+            ],
+          ),
+        ));
   }
 }

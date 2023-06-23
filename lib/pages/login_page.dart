@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:journey2/auth.dart';
@@ -53,11 +55,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _title() {
     return Text(
-      "Welcome Back",
+      "Ride Along",
       style: GoogleFonts.playfairDisplaySc(
-          fontSize: 35,
-          color: kPrimaryAccentColor,
-          fontWeight: FontWeight.bold),
+          fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold),
     );
   }
 
@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     } else {
       return Text(
-        errorMessage == '' ? '' : 'Must fill out all fields',
+        errorMessage == '' ? '' : '${errorMessage}',
         style: GoogleFonts.abhayaLibre(
             color: Colors.red, fontWeight: FontWeight.bold, fontSize: 25),
       );
@@ -229,60 +229,82 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Container(
-          height: size.height,
-          width: size.height * 0.5,
-          padding: const EdgeInsets.all(20),
-          child: Stack(
-            fit: StackFit.expand,
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  _DisplayLogo(),
-                  SizedBox(
-                    height: 0.3,
-                  ),
-                  _title(),
-                  _errorMessage(),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  _entryField('Email. . .', _emailController),
-                  const SizedBox(
-                    height: 25,
-                  ),
-                  _passwordField('Password. . .', _passwordController),
-                  Row(
-                    children: <Widget>[
-                      const Spacer(),
-                      _ForgotPasswordButton(),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 35,
-                  ),
-                  _submitButton(),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  _RegisterButton(),
-                  const SizedBox(
-                    height: 80,
-                  ),
-                  _bottomRow(),
-                  Row(
-                    children: <Widget>[
-                      const Spacer(),
-                      _TermsButton(),
-                      const Spacer()
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          )),
-    );
+        body: Container(
+      height: size.height,
+      width: size.width,
+      child: Stack(
+        children: [
+          Container(
+            child: Container(
+                height: size.height,
+                width: size.height * 0.5,
+                padding: const EdgeInsets.all(20),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    Container(
+                      height: size.height,
+                      width: size.width,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage("assets/images/AzerPromo.png"),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.0)),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(
+                          height: size.height * 0.35,
+                        ),
+                        _title(),
+                        _errorMessage(),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        _entryField('Email. . .', _emailController),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                        _passwordField('Password. . .', _passwordController),
+                        Row(
+                          children: <Widget>[
+                            const Spacer(),
+                            _ForgotPasswordButton(),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        _submitButton(),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        _RegisterButton(),
+                        _bottomRow(),
+                        Row(
+                          children: <Widget>[
+                            const Spacer(),
+                            _TermsButton(),
+                            const Spacer()
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          )
+        ],
+      ),
+    ));
   }
 }
