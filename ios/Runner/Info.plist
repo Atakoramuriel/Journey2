@@ -37,6 +37,18 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photo from camera</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>App requires access to location data at all times.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>App requires access to location data.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>App requires access to location data while using the app.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used to capture audio for image picker plugin.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose photo from gallery</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
