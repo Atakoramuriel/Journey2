@@ -1,9 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'dart:async';
-import 'package:journey2/constants.dart';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -13,85 +13,14 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-  //Starting Variables
-
-  //Start with the icon for the current Marker
-  BitmapDescriptor markerIcon = BitmapDescriptor.defaultMarker;
-
-  //Update the icon to the current user profile
-  void addCustomIcon() {
-    // BitmapDescriptor.fromBytes()
-  }
-
-  Widget _mapScreen() {
-    var username = FirebaseAuth.instance.currentUser?.displayName;
-    var currentPos =
-        LatLng(currentLocation!.latitude!, currentLocation!.longitude!);
-
-    return GoogleMap(
-      buildingsEnabled: true,
-      mapToolbarEnabled: true,
-      liteModeEnabled: false,
-      rotateGesturesEnabled: true,
-      compassEnabled: true,
-      onMapCreated: _onMapCreated,
-      initialCameraPosition: CameraPosition(
-        target: currentPos,
-        zoom: 14.0,
-      ),
-      myLocationEnabled: true,
-      markers: const {
-        // Marker(
-        //   markerId: const MarkerId('CurrentLocation'),
-        //   position:
-        //       LatLng(currentLocation!.latitude!, currentLocation!.longitude!),
-        //   infoWindow: InfoWindow(title: username),
-        // ),
-      },
-      circles: {
-        Circle(
-            circleId: CircleId("1"),
-            center: currentPos,
-            radius: 750,
-            strokeWidth: 2,
-            fillColor: Color(0xFF006491).withOpacity(0.2))
-      },
-    );
-  }
-
-  int _selectedIndex = 2;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  // ignore: prefer_final_fields
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  late GoogleMapController _controller;
-  final LatLng _center = const LatLng(37.4219999, -122.0840575);
-  final Location _location = Location();
-  LocationData? currentLocation;
+  GoogleMapController? _controller;
+  LocationData? _currentLocation;
   StreamSubscription<LocationData>? _locationSubscription;
-
-  void getCurrentLocation() {
-    Location location = Location();
-    location.getLocation().then((value) {
-      print("Obtained Location");
-      currentLocation = value;
-      setState(() {
-        currentLocation = value;
-      });
-    });
-  }
 
   @override
   void initState() {
-    getCurrentLocation();
     super.initState();
-    _initLocation();
+    _initializeLocation();
   }
 
   @override
@@ -100,39 +29,79 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  Future<void> _initLocation() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+  void _initializeLocation() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-    _serviceEnabled = await _location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await _location.requestService();
-      if (!_serviceEnabled) {
+    final Location location = Location();
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
 
-    _permissionGranted = await _location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await _location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
 
     _locationSubscription =
-        _location.onLocationChanged.listen((LocationData currentLocation) {
-      _controller.animateCamera(CameraUpdate.newLatLng(
-          LatLng(currentLocation.latitude!, currentLocation.longitude!)));
+        location.onLocationChanged.listen((LocationData currentLocation) {
+      setState(() {
+        _currentLocation = currentLocation;
+      });
     });
   }
 
-  void _onMapCreated(GoogleMapController controller) {
-    _controller = controller;
+  Future<void> _saveUserLocation() async {
+    if (_currentLocation != null) {
+      final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+      try {
+        final CollectionReference userLocationCollection =
+            FirebaseFirestore.instance.collection('UserLocation');
+        final DocumentReference userLocationDoc =
+            userLocationCollection.doc(userId);
+
+        final Map<String, dynamic> userData = {
+          'userId': userId,
+          'latitude': _currentLocation!.latitude,
+          'longitude': _currentLocation!.longitude,
+          'timestamp': FieldValue.serverTimestamp(),
+        };
+
+        await userLocationDoc.set(userData);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('User location saved successfully.'),
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save user location.'),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Current location data is unavailable.'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     Size size = MediaQuery.of(context).size;
     var username = FirebaseAuth.instance.currentUser?.displayName.toString();
 
@@ -176,6 +145,31 @@ class _MapViewState extends State<MapView> {
                   ),
                 )
               : _mapScreen()),
+=======
+    return Scaffold(
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: (controller) {
+              _controller = controller;
+            },
+            initialCameraPosition: CameraPosition(
+              target: LatLng(37.4219999, -122.0840575),
+              zoom: 14.0,
+            ),
+            myLocationEnabled: true,
+          ),
+          Positioned(
+            bottom: 70.0,
+            right: 10.0,
+            child: FloatingActionButton(
+              onPressed: _saveUserLocation,
+              child: Icon(Icons.save),
+            ),
+          ),
+        ],
+      ),
+>>>>>>> 2425652 (needed)
     );
   }
 }
