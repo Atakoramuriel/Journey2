@@ -1,12 +1,9 @@
-import 'dart:html';
-
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'dart:async';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -19,35 +16,39 @@ class _MapViewState extends State<MapView> {
   GoogleMapController? _controller;
   LocationData? _currentLocation;
   StreamSubscription<LocationData>? _locationSubscription;
+  StreamSubscription<QuerySnapshot>? _markerSubscription;
 
-  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+  Set<Marker> markers = {};
 
-  void initMarker(specify, specifyId) async {
-    var markerIdVal = specifyId;
-    final MarkerId markerId = MarkerId(markerIdVal);
-    final Marker marker = Marker(
-        markerId: markerId,
-        position: LatLng(
-            specify['latitude'].latitude, specifyId['longitude'].longitude
+  Marker initMarker(DocumentSnapshot specify) {
+    final markerId = MarkerId(specify.id);
+    final marker = Marker(
+      markerId: markerId,
+      position: LatLng(
+        specify['coordinates']['latitude'],
+        specify['coordinates']['longitude'],
+      ),
+      // Customize the marker as needed (e.g., add an info window)
+      infoWindow: InfoWindow(
+        title: 'username',
+        snippet: 'online',
+      ),
+    );
 
-            ///InfoWindow(title: )
-            ));
-    setState(() {
-      markers[markerId] = marker;
-    });
+    return marker;
   }
 
-  getMarkerData() async {
-    FirebaseFirestore.instance
+  void getMarkerData() {
+    _markerSubscription = FirebaseFirestore.instance
         .collection('UserLocation')
-        .get()
-        .then((myLocationData) {
-      if (myLocationData.docs.isNotEmpty) {
-        for (int i = 0; i < myLocationData.docs.length; i++) {
-          initMarker(
-              myLocationData.docs[i].data, myLocationData.docs[i].data());
-        }
-      }
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      setState(() {
+        markers.clear();
+        snapshot.docs.forEach((doc) {
+          markers.add(initMarker(doc));
+        });
+      });
     });
   }
 
@@ -56,12 +57,12 @@ class _MapViewState extends State<MapView> {
     super.initState();
     _initializeLocation();
     getMarkerData();
-    super.initState();
   }
 
   @override
   void dispose() {
     _locationSubscription?.cancel();
+    _markerSubscription?.cancel();
     super.dispose();
   }
 
@@ -107,8 +108,10 @@ class _MapViewState extends State<MapView> {
 
         final Map<String, dynamic> userData = {
           'userId': userId,
-          'latitude': _currentLocation!.latitude,
-          'longitude': _currentLocation!.longitude,
+          'coordinates': {
+            'latitude': _currentLocation!.latitude,
+            'longitude': _currentLocation!.longitude,
+          },
           'timestamp': FieldValue.serverTimestamp(),
         };
 
@@ -144,6 +147,7 @@ class _MapViewState extends State<MapView> {
             onMapCreated: (controller) {
               _controller = controller;
             },
+            markers: markers,
             initialCameraPosition: CameraPosition(
               target: LatLng(37.4219999, -122.0840575),
               zoom: 14.0,
