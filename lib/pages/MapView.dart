@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -17,10 +20,43 @@ class _MapViewState extends State<MapView> {
   LocationData? _currentLocation;
   StreamSubscription<LocationData>? _locationSubscription;
 
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
+
+  void initMarker(specify, specifyId) async {
+    var markerIdVal = specifyId;
+    final MarkerId markerId = MarkerId(markerIdVal);
+    final Marker marker = Marker(
+        markerId: markerId,
+        position: LatLng(
+            specify['latitude'].latitude, specifyId['longitude'].longitude
+
+            ///InfoWindow(title: )
+            ));
+    setState(() {
+      markers[markerId] = marker;
+    });
+  }
+
+  getMarkerData() async {
+    FirebaseFirestore.instance
+        .collection('UserLocation')
+        .get()
+        .then((myLocationData) {
+      if (myLocationData.docs.isNotEmpty) {
+        for (int i = 0; i < myLocationData.docs.length; i++) {
+          initMarker(
+              myLocationData.docs[i].data, myLocationData.docs[i].data());
+        }
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _initializeLocation();
+    getMarkerData();
+    super.initState();
   }
 
   @override
