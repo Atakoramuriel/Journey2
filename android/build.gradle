@@ -1,14 +1,20 @@
+apply plugin: 'kotlin'
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.3.20'
     repositories {
         google()
+        jcenter()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.android.tools.build:gradle:3.3.0'
         // START: FlutterFire Configuration
+<<<<<<< HEAD
         classpath 'com.google.gms:google-services:4.3.14'
+=======
+        classpath 'com.google.gms:google-services:4.2.0'
+>>>>>>> 6bf6252b2635993baab0a48e1270a346614e1840
         // END: FlutterFire Configuration
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -18,6 +24,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+     configurations.all {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jre7'
     }
 }
 
@@ -29,6 +38,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
+// tasks.register("clean", Delete) {
+//     delete rootProject.buildDir
+// }

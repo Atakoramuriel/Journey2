@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -54,8 +56,8 @@ class _ProfileViewState extends State<ProfileView>
   //TabController _tabController;
   final List<Tab> _tabs = <Tab>[
     Tab(text: 'Posts'),
-    Tab(text: 'Bio'),
-    Tab(text: 'Settings'),
+    Tab(text: 'Garage'),
+    Tab(text: 'Rides'),
   ];
 
   //Animated Variables End
@@ -691,7 +693,6 @@ class _ProfileViewState extends State<ProfileView>
   }
 
   //Tab Widgets
-
   // Vex
   Widget _buildButton(BuildContext context, String text, IconData icon) {
     return InkWell(
@@ -710,6 +711,431 @@ class _ProfileViewState extends State<ProfileView>
           ],
         ),
       ),
+    );
+  }
+
+//The top portion where the user profile photo and username are
+  Widget _GetUserInfo(userID) {
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      color: Colors.black,
+      height: size.height * 0.07,
+      width: size.width,
+      child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("Riders")
+              .where("userKey", isEqualTo: userID)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            final snapshotData = snapshot.data?.docs;
+            if (snapshotData!.isEmpty) {
+              return Text("No Data",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: size.width * 0.08));
+            } else {
+              return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: snapshotData.length,
+                  itemBuilder: (context, index) {
+                    // return Text(snapshotData[index]["Make"].toString());
+
+                    // ignore: prefer_const_constructors, sized_box_for_whitespace
+                    return Container(
+                      height: size.height * 0.07,
+                      child: Row(
+                        children: [
+                          Padding(
+                              padding: EdgeInsets.all(3),
+                              child: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    snapshotData[index]['profileImg']),
+                                radius: size.width * 0.085,
+                              )),
+                          SizedBox(
+                            width: size.width * 0.01,
+                          ),
+                          Text(
+                            snapshotData[index]["userName"],
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: size.width * 0.035),
+                          ),
+                          Spacer(),
+                          IconButton(
+                              color: Colors.white,
+                              onPressed: () {
+                                setState(() {
+                                  print(
+                                      "Pressed More Options Button on Post By ${snapshotData[index]["userName"]}");
+                                });
+                              },
+                              icon: Icon(Icons.more_horiz))
+                        ],
+                      ),
+                    );
+                  });
+            }
+          }),
+    );
+  }
+
+  //Middle Portion
+  // Widget _MiddlePost(snapshotData, index) {}
+
+  //Post Widget
+  Widget _UserPosts() {
+    Size size = MediaQuery.of(context).size;
+    var userID = FirebaseAuth.instance.currentUser?.uid;
+    List userPosts = [];
+    TextEditingController postText = TextEditingController();
+
+    return Container(
+      height: size.height * 1.5,
+      width: size.width,
+      child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("Posts")
+              .where("userKey", isEqualTo: userID)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            final snapshotData = snapshot.data?.docs;
+            if (snapshotData!.isEmpty) {
+              return Text("No Data",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: size.width * 0.08));
+            } else {
+              return ListView.builder(
+                  itemCount: snapshotData.length,
+                  itemBuilder: (context, index) {
+                    // return Text(snapshotData[index]["Make"].toString());
+
+                    // ignore: prefer_const_constructors, sized_box_for_whitespace
+                    return Container(
+                        padding: EdgeInsets.all(10),
+                        height: size.height * 0.60,
+                        width: size.width * 0.20,
+                        child: GestureDetector(
+                          onTap: () {
+                            print("Tapped on " + snapshotData[index]['Model']);
+                            setState(() {});
+                          },
+                          onDoubleTap: () {
+                            print(
+                                "User Liked:  " + snapshotData[index]['Model']);
+                          },
+                          child: Card(
+                            borderOnForeground: true,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  color: const Color.fromARGB(255, 27, 27, 27),
+                                ),
+                                Column(
+                                  children: [
+                                    //Replace the following on the main post section
+
+                                    _GetUserInfo(userID),
+                                    //End of replace on main section
+
+                                    if (snapshotData[index]["Img"] != "") ...[
+                                      Container(
+                                        width: size.width,
+                                        child: Card(
+                                          semanticContainer: true,
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
+                                          child: Image.network(
+                                            snapshotData[index]["Img"],
+                                            fit: BoxFit.fill,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
+                                          elevation: 5,
+                                        ),
+                                      )
+                                    ],
+
+                                    Container(
+                                      color: Colors.black,
+                                      child: Row(
+                                        children: [
+                                          Spacer(),
+                                          Container(
+                                            width: size.width * 0.85,
+                                            child: Text(
+                                              snapshotData[index]["text"],
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: size.width * 0.03),
+                                            ),
+                                          ),
+                                          Spacer()
+                                        ],
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    _PostBottomRow(snapshotData, index),
+                                    Container(
+                                      height: size.height * 0.045,
+                                      color: Colors.black,
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: size.width * 0.03,
+                                          ),
+                                          Text(
+                                            snapshotData[index]["Date"] +
+                                                "  " +
+                                                snapshotData[index]
+                                                    ["TimeStamp"],
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: size.width * 0.03),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ));
+                  });
+            }
+          }),
+    );
+  }
+
+  // Bottom LIkes, Comment, Share, Save Area - Widget
+  Widget _PostBottomRow(snapshotData, index) {
+    Size size = MediaQuery.of(context).size;
+    var userID = FirebaseAuth.instance.currentUser?.uid;
+    List userPosts = [];
+
+    return Container(
+        color: Colors.black,
+        width: size.width,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        print("Pressed Heart Button");
+                      });
+                    },
+                    icon: Icon(
+                      Icons.favorite_border,
+                      color: Colors.red,
+                    )),
+                IconButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        print("Pressed Comment Button");
+                      });
+                    },
+                    icon: Icon(
+                      Icons.mode_comment_outlined,
+                      color: Colors.grey,
+                    )),
+                IconButton(
+                    color: Colors.blueGrey[700],
+                    onPressed: () {
+                      setState(() {
+                        print("Pressed Save Button");
+                      });
+                    },
+                    icon: Icon(
+                      Icons.book_outlined,
+                      color: Colors.grey,
+                    )),
+                Spacer(),
+                IconButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        print("Pressed Send Button");
+                      });
+                    },
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: kPrimaryAccentColor,
+                    )),
+                SizedBox(
+                  width: size.width * 0.05,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: size.width * 0.03,
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    "Likes: ",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    "${snapshotData[index]["LikesNum"]}",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Spacer()
+              ],
+            ),
+            SizedBox(
+              height: 3,
+            ),
+            Row(
+              children: [
+                SizedBox(
+                  width: size.width * 0.03,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      print("Selected View Comments button");
+                    });
+                  },
+                  child: Text(
+                    "View Comments...",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Spacer()
+              ],
+            ),
+            SizedBox(
+              height: 3,
+            ),
+          ],
+        ));
+  }
+
+  // Widget _GetUserInfo(userkey) {
+  //   Size size = MediaQuery.of(context).size;
+  // }
+
+  //Motorcycle Widgets
+  Widget _UserMotorcycles() {
+    Size size = MediaQuery.of(context).size;
+    var userID = FirebaseAuth.instance.currentUser?.uid;
+
+    List userMotorcycles = [];
+    // ignore: sized_box_for_whitespace
+    return Container(
+      height: size.height,
+      width: size.width,
+      child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection("Riders")
+              .doc(userID)
+              .collection("Motorcycles")
+              .orderBy('Make', descending: true)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            final snapshotData = snapshot.data?.docs;
+            if (snapshotData!.isEmpty) {
+              return Text("No Data",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: size.width * 0.08));
+            }
+
+            return ListView.builder(
+                itemCount: snapshotData.length,
+                itemBuilder: (context, index) {
+                  // return Text(snapshotData[index]["Make"].toString());
+
+                  // ignore: prefer_const_constructors, sized_box_for_whitespace
+                  return Container(
+                      height: size.height * 0.30,
+                      width: size.width * 0.20,
+                      child: GestureDetector(
+                        onTap: () {
+                          print("Tapped on " + snapshotData[index]['Model']);
+                          setState(() {});
+                        },
+                        onDoubleTap: () {
+                          print("User Liked:  " + snapshotData[index]['Model']);
+                        },
+                        child: Card(
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        "assets/images/AzerPromo.png"),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  SizedBox(height: 25),
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: size.width * 0.03,
+                                      ),
+                                      Text(
+                                        snapshotData[index]["Year"] +
+                                            "  " +
+                                            snapshotData[index]["Make"],
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: size.width * 0.05),
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: size.width * 0.03,
+                                      ),
+                                      Text(
+                                        snapshotData[index]["Model"],
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: size.width * 0.1),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ));
+                });
+          }),
     );
   }
 
@@ -852,7 +1278,7 @@ class _ProfileViewState extends State<ProfileView>
                                 //rides
                                 Container(
                                   padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
+                                  height: size.height * 0.10,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -941,59 +1367,49 @@ class _ProfileViewState extends State<ProfileView>
                               ],
                             ),
                             TabBar(
+                              labelColor: Colors.white,
+                              indicatorColor: kPrimaryAccentColor,
                               controller: _tab2Controller,
                               tabs: _tabs,
                             ),
                           ],
                         ),
                         SizedBox(
-                          height: size.height * 0.4,
+                          height: size.height,
                           width: size.width,
                           child: TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
                             controller: _tab2Controller,
                             children: [
                               //If there are no posts
                               //Show the no posts for now
-                              Center(
-                                child: Text(
-                                  'No Posts',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: size.width * 0.05),
+                              Container(
+                                  child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    // SizedBox(
+                                    //   height: size.height * 0.05,
+                                    // ),
+                                    _UserPosts()
+                                  ],
                                 ),
-                              ),
+                              )),
 
                               //This is the User Bio Section to show previous Rides
                               //Previous Rides
                               //Motorcycle Info
                               Container(
-                                  child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: size.height * 0.01,
-                                  ),
-                                  if (snapshot.data["RiderType"] ==
-                                      "Night") ...[
-                                    Text(
-                                      snapshot.data["RiderType"] + " Rider",
-                                      style: GoogleFonts.allura(
-                                          fontStyle: FontStyle.normal,
-                                          textStyle: TextStyle(
-                                              color: Color(0xff8c92ac),
-                                              fontSize: 35)),
+                                  color: Colors.red,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        // SizedBox(
+                                        //   height: size.height * 0.05,
+                                        // ),
+                                        _UserMotorcycles()
+                                      ],
                                     ),
-                                  ] else if (snapshot.data["RiderType"] ==
-                                      "Standard") ...[
-                                    Text(
-                                      snapshot.data["RiderType"] + " Rider",
-                                      style: GoogleFonts.bodoniModa(
-                                        fontSize: size.width * 0.07,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              )),
+                                  )),
                               SizedBox(
                                   height: size.height,
                                   width: size.width,
@@ -1001,100 +1417,35 @@ class _ProfileViewState extends State<ProfileView>
                                       child: Column(
                                     children: [
                                       //This is the Row of the My Garage and Past Rides
-                                      Row(
-                                        children: [
-                                          Spacer(),
-                                          Center(
-                                              /** Card Widget **/
-                                              child: GestureDetector(
-                                            onTap: () {
-                                              print("Tapped My Garage Button");
-                                            },
-                                            child: Card(
-                                              elevation: 50,
-                                              shadowColor: Colors.black,
-                                              color: Colors.blueGrey[800],
-                                              child: SizedBox(
-                                                width: size.width * 0.4,
-                                                height: size.height * 0.06,
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      10.0),
-                                                  child: Column(
-                                                    children: [
-                                                      //CircleAvatar
-
-                                                      Text(
-                                                        'My Garage',
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              size.width * 0.05,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ), //Textstyle
-                                                      ), //Text
-                                                      //Text
-                                                      //SizedBox
-                                                    ],
-                                                  ), //Column
-                                                ), //Padding
-                                              ), //SizedBox
-                                            ),
-                                          ) //Card
-                                              ),
-                                          SizedBox(
-                                            height: size.height * 0.01,
+                                      if (snapshot.data["RiderType"] ==
+                                          "Night") ...[
+                                        Text(
+                                          snapshot.data["RiderType"] + " Rider",
+                                          style: GoogleFonts.allura(
+                                              fontStyle: FontStyle.normal,
+                                              textStyle: TextStyle(
+                                                  color: Color(0xff8c92ac),
+                                                  fontSize: 35)),
+                                        ),
+                                      ] else if (snapshot.data["RiderType"] ==
+                                          "Standard") ...[
+                                        Text(
+                                          snapshot.data["RiderType"] + " Rider",
+                                          style: GoogleFonts.bodoniModa(
+                                            fontSize: size.width * 0.07,
+                                            color: Colors.white,
                                           ),
-                                          Center(
-                                              /** Card Widget **/
-                                              child: GestureDetector(
-                                            onTap: () {
-                                              print("Tapped Past Rides Button");
-                                            },
-                                            child: Card(
-                                              elevation: 50,
-                                              shadowColor: Colors.black,
-                                              color: Colors.lightBlue[900],
-                                              child: SizedBox(
-                                                width: size.width * 0.4,
-                                                height: size.height * 0.06,
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      10.0),
-                                                  child: Column(
-                                                    children: [
-                                                      //CircleAvatar
-
-                                                      Text(
-                                                        'Past Rides',
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              size.width * 0.05,
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ), //Textstyle
-                                                      ), //Text
-                                                      //Text
-                                                      //SizedBox
-                                                    ],
-                                                  ), //Column
-                                                ), //Padding
-                                              ), //SizedBox
-                                            ),
-                                          ) //Card
-                                              ),
-                                          Spacer(),
-                                        ],
-                                      ),
-
+                                        ),
+                                      ],
                                       //This is the List of Buttons
                                     ],
                                   ))),
                             ],
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          height: size.height * 0.38,
+                        ),
                       ],
                     ),
                   ),
