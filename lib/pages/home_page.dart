@@ -6,6 +6,7 @@ import 'package:journey2/constants.dart';
 import 'package:journey2/pages/MapView.dart';
 import 'package:journey2/pages/ProfileView.dart';
 import 'package:journey2/pages/newPost.dart';
+import 'package:journey2/pages/newRide.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -73,20 +74,28 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           setState(() {
             if (currentTab == 0) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('New Post'),
-                    content: Text('This is an alert dialog.'),
-                    actions: <Widget>[
-                      Row(
-                        children: [Text("HERE")],
-                      ),
-                    ],
-                  );
-                },
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return NewRide();
+                  },
+                ),
               );
+              //  showDialog(
+              //     context: context,
+              //     builder: (BuildContext context) {
+              //       return AlertDialog(
+              //         title: Text('New Post'),
+              //         content: Text('This is an alert dialog.'),
+              //         actions: <Widget>[
+              //           Row(
+              //             children: [Text("HERE")],
+              //           ),
+              //         ],
+              //       );
+              //     },
+              //   );
               print("Bring up New Ride option or Join Button");
             } else if (currentTab == 3) {
               Navigator.push(

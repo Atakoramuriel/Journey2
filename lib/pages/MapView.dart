@@ -22,6 +22,7 @@ class _MapViewState extends State<MapView> {
 
   Marker initMarker(DocumentSnapshot specify) {
     final markerId = MarkerId(specify.id);
+    final userName = specify['userName'] ?? 'No username';
     final marker = Marker(
       markerId: markerId,
       position: LatLng(
@@ -30,7 +31,7 @@ class _MapViewState extends State<MapView> {
       ),
       // Customize the marker as needed (e.g., add an info window)
       infoWindow: InfoWindow(
-        title: 'username',
+        title: userName,
         snippet: 'online',
       ),
     );
@@ -97,8 +98,19 @@ class _MapViewState extends State<MapView> {
   }
 
   Future<void> _saveUserLocation() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No user is currently signed in.'),
+        ),
+      );
+      return;
+    }
+
     if (_currentLocation != null) {
-      final String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      final String userId = user.uid;
 
       try {
         final CollectionReference userLocationCollection =
@@ -106,12 +118,20 @@ class _MapViewState extends State<MapView> {
         final DocumentReference userLocationDoc =
             userLocationCollection.doc(userId);
 
+        // Fetch the username from the Riders collection
+        final userNameDoc = await FirebaseFirestore.instance
+            .collection('Riders')
+            .doc(userId)
+            .get();
+        final userName = userNameDoc['userName'] ?? 'No username';
+
         final Map<String, dynamic> userData = {
           'userId': userId,
           'coordinates': {
             'latitude': _currentLocation!.latitude,
             'longitude': _currentLocation!.longitude,
           },
+          'userName': userName, // Add the username to the saved data
           'timestamp': FieldValue.serverTimestamp(),
         };
 
