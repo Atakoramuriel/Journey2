@@ -20,9 +20,8 @@ class _MapViewState extends State<MapView> {
 
   Set<Marker> markers = {};
 
-  Marker initMarker(DocumentSnapshot specify) {
+  Marker initMarker(DocumentSnapshot specify, String userName) {
     final markerId = MarkerId(specify.id);
-    final userName = specify['userName'] ?? 'No username';
     final marker = Marker(
       markerId: markerId,
       position: LatLng(
@@ -46,8 +45,13 @@ class _MapViewState extends State<MapView> {
         .listen((QuerySnapshot snapshot) {
       setState(() {
         markers.clear();
-        snapshot.docs.forEach((doc) {
-          markers.add(initMarker(doc));
+        snapshot.docs.forEach((doc) async {
+          final userNameDoc = await FirebaseFirestore.instance
+              .collection('Riders')
+              .doc(doc.id)
+              .get();
+          final userName = userNameDoc['userName'] ?? 'No username';
+          markers.add(initMarker(doc, userName));
         });
       });
     });
@@ -56,8 +60,9 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
-    _initializeLocation();
-    getMarkerData();
+    _initializeLocation().then((_) {
+      getMarkerData();
+    });
   }
 
   @override
@@ -67,7 +72,7 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  void _initializeLocation() async {
+  Future<void> _initializeLocation() async {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
 
@@ -88,6 +93,8 @@ class _MapViewState extends State<MapView> {
         return;
       }
     }
+
+    _currentLocation = await location.getLocation();
 
     _locationSubscription =
         location.onLocationChanged.listen((LocationData currentLocation) {
@@ -161,29 +168,34 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          GoogleMap(
-            onMapCreated: (controller) {
-              _controller = controller;
-            },
-            markers: markers,
-            initialCameraPosition: CameraPosition(
-              target: LatLng(37.4219999, -122.0840575),
-              zoom: 14.0,
+      body: _currentLocation == null
+          ? Center(child: CircularProgressIndicator())
+          : Stack(
+              children: [
+                GoogleMap(
+                  onMapCreated: (controller) {
+                    _controller = controller;
+                  },
+                  markers: markers,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      _currentLocation!.latitude ?? 0,
+                      _currentLocation!.longitude ?? 0,
+                    ),
+                    zoom: 14.0,
+                  ),
+                  myLocationEnabled: true,
+                ),
+                Positioned(
+                  bottom: 70.0,
+                  right: 10.0,
+                  child: FloatingActionButton(
+                    onPressed: _saveUserLocation,
+                    child: Icon(Icons.save),
+                  ),
+                ),
+              ],
             ),
-            myLocationEnabled: true,
-          ),
-          Positioned(
-            bottom: 70.0,
-            right: 10.0,
-            child: FloatingActionButton(
-              onPressed: _saveUserLocation,
-              child: Icon(Icons.save),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
