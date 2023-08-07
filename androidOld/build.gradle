@@ -1,0 +1,41 @@
+// 
+buildscript {
+    ext.kotlin_version = '1.8.22'
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+           classpath 'com.android.tools.build:gradle:3.2.1'
+           classpath 'com.google.gms:google-services:3.2.1'
+        // classpath 'com.android.tools.build:gradle:3.3.0'
+        // // START: FlutterFire Configuration
+        // classpath 'com.google.gms:google-services:4.3.8'
+        // END: FlutterFire Configuration
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+     configurations.all {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jre7'
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+// tasks.register("clean", Delete) {
+//     delete rootProject.buildDir
+// }
