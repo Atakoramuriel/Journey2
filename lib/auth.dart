@@ -46,6 +46,7 @@ signInWithGoogle() async {
     accessToken: googleAuth.accessToken,
     idToken: googleAuth.idToken,
   );
+  print("Sign In W/ Google Called and returning now... \n \n");
   return await FirebaseAuth.instance.signInWithCredential(credential);
 }
 

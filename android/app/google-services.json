@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "754260148515",
+    "project_id": "ridealongdb-fe563",
+    "storage_bucket": "ridealongdb-fe563.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754260148515:android:bfe20cdc8c1c4e4c7acc96",
+        "android_client_info": {
+          "package_name": "com.ridealong.journey2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "754260148515-ksh8oef2tiv9vhr5fo6pnb3hl3eoga4p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ridealong.journey2",
+            "certificate_hash": "46039bcd1b6d09780825fbbed1965dab6d528bea"
+          }
+        },
+        {
+          "client_id": "754260148515-m58gbiaa92i3er38aubbalfcommgcb7j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ridealong.journey2",
+            "certificate_hash": "b27d04283e4bbf256b586df164028f7ff163cfb7"
+          }
+        },
+        {
+          "client_id": "754260148515-1g3vq6j91108e2tn4e829nlrcfktm9uv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUQlM83e6_lAMEExpNm27m671mUG0C3aU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "754260148515-1g3vq6j91108e2tn4e829nlrcfktm9uv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "754260148515-bsf9av0ltdns9frc5df4bes23irkps33.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.journey2.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
