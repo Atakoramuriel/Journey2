@@ -1,9 +1,13 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -20,42 +24,52 @@ class _MapViewState extends State<MapView> {
 
   Set<Marker> markers = {};
 
-  Marker initMarker(DocumentSnapshot specify, String userName) {
+  Future<BitmapDescriptor> getBitmapDescriptorFromUrl(String url, int width) async {
+    final response = await http.get(Uri.parse(url));
+    final bytes = response.bodyBytes;
+    final codec = await ui.instantiateImageCodec(bytes, targetWidth: width);
+    final frameInfo = await codec.getNextFrame();
+    final image = frameInfo.image;
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
+  }
+
+  Future<Marker> initMarker(DocumentSnapshot specify) async {
     final markerId = MarkerId(specify.id);
-    final marker = Marker(
+    final profileImgUrl = specify['profilemg'] ?? '';
+
+    return Marker(
       markerId: markerId,
       position: LatLng(
         specify['coordinates']['latitude'],
         specify['coordinates']['longitude'],
       ),
-      // Customize the marker as needed (e.g., add an info window)
+      icon: await getBitmapDescriptorFromUrl(profileImgUrl, 80),
       infoWindow: InfoWindow(
-        title: userName,
+        title: specify['username'] ?? 'No username',
         snippet: 'online',
       ),
     );
-
-    return marker;
   }
 
   void getMarkerData() {
     _markerSubscription = FirebaseFirestore.instance
         .collection('UserLocation')
         .snapshots()
-        .listen((QuerySnapshot snapshot) {
+        .listen((QuerySnapshot snapshot) async {
+      final newMarkers = <Marker>{};
+      final List<Future<Marker>> markerFutures = [];
+      for (var doc in snapshot.docs) {
+        markerFutures.add(initMarker(doc));
+      }
+      final allMarkers = await Future.wait(markerFutures);
+      newMarkers.addAll(allMarkers);
       setState(() {
-        markers.clear();
-        snapshot.docs.forEach((doc) async {
-          final userNameDoc = await FirebaseFirestore.instance
-              .collection('Riders')
-              .doc(doc.id)
-              .get();
-          final userName = userNameDoc['userName'] ?? 'No username';
-          markers.add(initMarker(doc, userName));
-        });
+        markers = newMarkers;
       });
     });
-  }
+}
+
 
   @override
   void initState() {
@@ -130,7 +144,7 @@ class _MapViewState extends State<MapView> {
             .collection('Riders')
             .doc(userId)
             .get();
-        final userName = userNameDoc['userName'] ?? 'No username';
+        final userName = userNameDoc['username'] ?? 'No username';
 
         final Map<String, dynamic> userData = {
           'userId': userId,
@@ -138,7 +152,7 @@ class _MapViewState extends State<MapView> {
             'latitude': _currentLocation!.latitude,
             'longitude': _currentLocation!.longitude,
           },
-          'userName': userName, // Add the username to the saved data
+          'userName': userName,
           'timestamp': FieldValue.serverTimestamp(),
         };
 

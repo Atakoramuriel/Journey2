@@ -145,7 +145,8 @@ class _ProfileViewState extends State<ProfileView>
           ),
           Align(
             alignment: Alignment.center,
-            child: Transform.translate(
+            child: Transform.translate(FirebaseAuth.instance.currentUser?.photoURL as String
+
               offset: Offset(0, animation4.value),
               child: Wrap(
                 direction: Axis.vertical,
