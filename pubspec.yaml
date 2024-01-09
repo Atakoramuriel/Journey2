@@ -33,6 +33,7 @@ dependencies:
   path_provider: ^2.0.14
   google_maps_flutter: ^2.1.1
   location: ^4.3.0
+  flutter_cache_manager: ^3.3.13
 
 
 dev_dependencies:

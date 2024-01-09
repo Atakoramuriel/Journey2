@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -21,61 +22,127 @@ class _MapViewState extends State<MapView> {
   LocationData? _currentLocation;
   StreamSubscription<LocationData>? _locationSubscription;
   StreamSubscription<QuerySnapshot>? _markerSubscription;
-
   Set<Marker> markers = {};
 
-  Future<BitmapDescriptor> getBitmapDescriptorFromUrl(String url, int width) async {
-    final response = await http.get(Uri.parse(url));
-    final bytes = response.bodyBytes;
-    final codec = await ui.instantiateImageCodec(bytes, targetWidth: width);
-    final frameInfo = await codec.getNextFrame();
-    final image = frameInfo.image;
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocation();
+    getMarkerData();
   }
 
-  Future<Marker> initMarker(DocumentSnapshot specify) async {
-    final markerId = MarkerId(specify.id);
-    final profileImgUrl = specify['profilemg'] ?? '';
+  Future<Uint8List> getMarker(String profileUrl) async {
+    try {
+      final File markerImageFile = await DefaultCacheManager().getSingleFile(profileUrl);
+      final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
+      final ui.Codec codec = await ui.instantiateImageCodec(markerImageBytes, targetWidth: 120, targetHeight: 120);
+      final ui.FrameInfo fi = await codec.getNextFrame();
+      final ui.Image image = fi.image;
 
-    return Marker(
-      markerId: markerId,
-      position: LatLng(
-        specify['coordinates']['latitude'],
-        specify['coordinates']['longitude'],
-      ),
-      icon: await getBitmapDescriptorFromUrl(profileImgUrl, 80),
-      infoWindow: InfoWindow(
-        title: specify['username'] ?? 'No username',
-        snippet: 'online',
-      ),
-    );
+      final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(pictureRecorder);
+      final int size = 120; // Size of the marker
+      final Paint paint = Paint();
+      final double radius = size / 2;
+
+      // Draw the circle
+      paint.color = Colors.white;
+      canvas.drawCircle(Offset(radius, radius), radius, paint);
+
+      // Clip the image to a circle and draw it
+      final Path clipPath = Path()..addOval(Rect.fromCircle(center: Offset(radius, radius), radius: radius - 10));
+      canvas.clipPath(clipPath);
+      canvas.drawImage(image, Offset.zero, paint);
+
+      // Convert canvas to image
+      final ui.Image markerAsImage = await pictureRecorder.endRecording().toImage(size, size);
+      final ByteData? byteData = await markerAsImage.toByteData(format: ui.ImageByteFormat.png);
+      return byteData!.buffer.asUint8List();
+    } catch (e) {
+      print("Error fetching or processing marker image: $e");
+      // Return a default marker if there's an error
+      return (await rootBundle.load('assets/default_marker.png')).buffer.asUint8List();
+    }
+  }
+
+  Future<Marker?> initMarker(DocumentSnapshot doc) async {
+    try {
+      final markerId = MarkerId(doc.id);
+      final coordinates = doc['coordinates'] as Map<String, dynamic>;
+      final latitude = coordinates['latitude'] as double;
+      final longitude = coordinates['longitude'] as double;
+      final userId = doc['userId'] as String;
+
+      // Fetch the profile image URL for the user from the Riders collection
+      final DocumentSnapshot riderDoc = await FirebaseFirestore.instance.collection('Riders').doc(userId).get();
+      final profileImageUrl = riderDoc['profileImg'] as String;
+
+      final markerImage = await getMarker(profileImageUrl);
+
+      return Marker(
+        markerId: markerId,
+        position: LatLng(latitude, longitude),
+        icon: BitmapDescriptor.fromBytes(markerImage),
+        infoWindow: InfoWindow(
+          title: riderDoc['userName'] as String,
+          snippet: 'Last updated: ${doc['timestamp'].toDate()}',
+        ),
+      );
+    } catch (e) {
+      print("Error initializing marker: $e");
+      return null;
+    }
   }
 
   void getMarkerData() {
     _markerSubscription = FirebaseFirestore.instance
         .collection('UserLocation')
         .snapshots()
-        .listen((QuerySnapshot snapshot) async {
-      final newMarkers = <Marker>{};
-      final List<Future<Marker>> markerFutures = [];
-      for (var doc in snapshot.docs) {
-        markerFutures.add(initMarker(doc));
+        .listen((QuerySnapshot snapshot) {
+      if (snapshot.docs.isEmpty) {
+        print('No documents found in UserLocation collection.');
+      } else {
+        print('Found ${snapshot.docs.length} documents in UserLocation collection.');
       }
-      final allMarkers = await Future.wait(markerFutures);
-      newMarkers.addAll(allMarkers);
-      setState(() {
-        markers = newMarkers;
+
+      // Use a temporary set to store markers until all have been created
+      Set<Marker> tempMarkers = {};
+
+      Future.wait(snapshot.docs.map((doc) async {
+        var marker = await initMarker(doc);
+        if (marker != null) {
+          tempMarkers.add(marker);
+        }
+      })).then((_) {
+        // Once all markers are ready, update the state to display them
+        setState(() {
+          markers = tempMarkers;
+        });
       });
     });
-}
+  }
 
+  void _initializeLocation() async {
+    final Location location = Location();
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeLocation().then((_) {
-      getMarkerData();
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) return;
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return;
+    }
+
+    _locationSubscription = location.onLocationChanged.listen((LocationData currentLocation) {
+      setState(() {
+        _currentLocation = currentLocation;
+      });
     });
   }
 
@@ -86,65 +153,54 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  Future<void> _initializeLocation() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    final Location location = Location();
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _currentLocation = await location.getLocation();
-
-    _locationSubscription =
-        location.onLocationChanged.listen((LocationData currentLocation) {
-      setState(() {
-        _currentLocation = currentLocation;
-      });
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: (GoogleMapController controller) {
+              _controller = controller;
+            },
+            markers: markers,
+            initialCameraPosition: CameraPosition(
+              target: _currentLocation != null
+                  ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
+                  : LatLng(37.4219999, -122.0840575), // Default to GooglePlex
+              zoom: 14.0,
+            ),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+          ),
+          if (_currentLocation != null)
+            Positioned(
+              bottom: 70.0,
+              right: 10.0,
+              child: FloatingActionButton(
+                onPressed: _saveUserLocation,
+                child: const Icon(Icons.save),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> _saveUserLocation() async {
     final User? user = FirebaseAuth.instance.currentUser;
-
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No user is currently signed in.'),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No user is currently signed in.')));
       return;
     }
 
     if (_currentLocation != null) {
       final String userId = user.uid;
+      final CollectionReference userLocationCollection = FirebaseFirestore.instance.collection('UserLocation');
+      final DocumentReference userLocationDoc = userLocationCollection.doc(userId);
 
       try {
-        final CollectionReference userLocationCollection =
-            FirebaseFirestore.instance.collection('UserLocation');
-        final DocumentReference userLocationDoc =
-            userLocationCollection.doc(userId);
-
-        // Fetch the username from the Riders collection
-        final userNameDoc = await FirebaseFirestore.instance
-            .collection('Riders')
-            .doc(userId)
-            .get();
-        final userName = userNameDoc['username'] ?? 'No username';
+        final userNameDoc = await FirebaseFirestore.instance.collection('Riders').doc(userId).get();
+        final userName = userNameDoc['userName'] ?? 'No username';
 
         final Map<String, dynamic> userData = {
           'userId': userId,
@@ -157,59 +213,12 @@ class _MapViewState extends State<MapView> {
         };
 
         await userLocationDoc.set(userData);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('User location saved successfully.'),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User location saved successfully.')));
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save user location.'),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save user location: $e')));
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Current location data is unavailable.'),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Current location data is unavailable.')));
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _currentLocation == null
-          ? Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                GoogleMap(
-                  onMapCreated: (controller) {
-                    _controller = controller;
-                  },
-                  markers: markers,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                      _currentLocation!.latitude ?? 0,
-                      _currentLocation!.longitude ?? 0,
-                    ),
-                    zoom: 14.0,
-                  ),
-                  myLocationEnabled: true,
-                ),
-                Positioned(
-                  bottom: 70.0,
-                  right: 10.0,
-                  child: FloatingActionButton(
-                    onPressed: _saveUserLocation,
-                    child: Icon(Icons.save),
-                  ),
-                ),
-              ],
-            ),
-    );
   }
 }
