@@ -143,25 +143,25 @@ class _ProfileViewState extends State<ProfileView>
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.center,
-            child: Transform.translate(FirebaseAuth.instance.currentUser?.photoURL as String
+          // Align(
+          //   alignment: Alignment.center,
+          //   child: Transform.translate(FirebaseAuth.instance.currentUser?.photoURL as String
 
-              offset: Offset(0, animation4.value),
-              child: Wrap(
-                direction: Axis.vertical,
-                children: [
-                  RotatedBox(
-                      quarterTurns: 1,
-                      child: Container(
-                        height: size.height * 0.005,
-                        width: size.width * 0.9,
-                        color: Colors.red.withOpacity(0.2),
-                      )),
-                ],
-              ),
-            ),
-          ),
+          //     offset: Offset(0, animation4.value),
+          //     child: Wrap(
+          //       direction: Axis.vertical,
+          //       children: [
+          //         RotatedBox(
+          //             quarterTurns: 1,
+          //             child: Container(
+          //               height: size.height * 0.005,
+          //               width: size.width * 0.9,
+          //               color: Colors.red.withOpacity(0.2),
+          //             )),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           Align(
             alignment: Alignment.center,
             child: Transform.translate(
