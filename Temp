@@ -19,7 +19,7 @@ Future getUser(userKey) async {
   Map<String, dynamic>? rider;
 
   await FirebaseFirestore.instance
-      .collection("users")
+      .collection("Riders")
       .doc(userKey)
       .get()
       .then((doc) {
@@ -788,8 +788,7 @@ class _ProfileViewState extends State<ProfileView>
   //Post Widget
   Widget _UserPosts() {
     Size size = MediaQuery.of(context).size;
-    var userID = FirebaseAuth
-        .instance.currentUser?.uid; //This is the current user logged in
+    var userID = FirebaseAuth.instance.currentUser?.uid; //This is the current user logged in 
     List userPosts = [];
     TextEditingController postText = TextEditingController();
 
@@ -1037,48 +1036,6 @@ class _ProfileViewState extends State<ProfileView>
   //   Size size = MediaQuery.of(context).size;
   // }
 
-  Widget _ButtonCard(title, color) {
-    Size size = MediaQuery.of(context).size;
-    return Stack(
-      children: [
-        Container(
-            color: Colors.transparent,
-            width: size.width * 0.48,
-            height: size.height * 0.12,
-            child: Card(
-              color: color,
-              semanticContainer: true,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              // child: Image.network(
-              //   'https://firebasestorage.googleapis.com/v0/b/ridealongdb-fe563.appspot.com/o/StockProfiles%2FA0.jpeg?alt=media&token=3c5a851e-ce0b-4a30-8da7-04df2dff25fa',
-              //   fit: BoxFit.fill,
-              // ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              elevation: 5,
-            )),
-        Container(
-          height: size.height * 0.12,
-          width: size.width * 0.42,
-          child: Row(
-            children: [
-              Spacer(),
-              Text(
-                title,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: size.width * 0.05),
-              ),
-              Spacer()
-            ],
-          ),
-        )
-      ],
-    );
-  }
-
   //Motorcycle Widgets
   Widget _UserMotorcycles() {
     Size size = MediaQuery.of(context).size;
@@ -1276,7 +1233,6 @@ class _ProfileViewState extends State<ProfileView>
                 ],
 
 //                 //End of Animations
-
                 SizedBox(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -1287,18 +1243,11 @@ class _ProfileViewState extends State<ProfileView>
                             SizedBox(
                               height: size.height * 0.07,
                             ),
-                            Row(
-                              children: [
-                                Spacer(),
-                                CircleAvatar(
-                                  radius: size.width * 0.15,
-                                  backgroundImage:
-                                      NetworkImage(snapshot.data["profileImg"]),
-                                ),
-                                Spacer()
-                              ],
+                            CircleAvatar(
+                              radius: size.width * 0.15,
+                              backgroundImage:
+                                  NetworkImage(snapshot.data["profileImg"]),
                             ),
-
                             SizedBox(
                               height: size.height * 0.01,
                             ),
@@ -1309,6 +1258,7 @@ class _ProfileViewState extends State<ProfileView>
                                 fontSize: size.width * 0.06,
                               ),
                             ),
+
                             SizedBox(
                               height: size.height * 0.01,
                             ),
@@ -1321,36 +1271,180 @@ class _ProfileViewState extends State<ProfileView>
                             ),
 
                             //This is the Row for the user information
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                //Break into four Columns
+                                //rides
+                                Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  height: size.height * 0.10,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.07),
+                                      ),
+                                      Text(
+                                        "Rides",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.04),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                //rides
+                                Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  height: size.height * 0.15,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.07),
+                                      ),
+                                      Text(
+                                        "Friends",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.04),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                //rides
+                                Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  height: size.height * 0.15,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.07),
+                                      ),
+                                      Text(
+                                        "Badges",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.04),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                //rides
+                                Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  height: size.height * 0.15,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "0",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.07),
+                                      ),
+                                      Text(
+                                        "Rides",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.04),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            TabBar(
+                              labelColor: Colors.white,
+                              indicatorColor: kPrimaryAccentColor,
+                              controller: _tab2Controller,
+                              tabs: _tabs,
+                            ),
                           ],
                         ),
                         SizedBox(
-                          height: size.height * 0.01,
-                        ),
-                        Row(
-                          children: [
-                            Spacer(),
-                            _ButtonCard("Rides + ${snapshot.data['']}",
-                                Colors.blueGrey[900]),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            _ButtonCard("Posts", Colors.blueGrey[800]),
-                            Spacer()
-                          ],
+                          height: size.height,
+                          width: size.width,
+                          child: TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
+                            controller: _tab2Controller,
+                            children: [
+                              //If there are no posts
+                              //Show the no posts for now
+                              Container(
+                                  child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    // SizedBox(
+                                    //   height: size.height * 0.05,
+                                    // ),
+                                    _UserPosts()
+                                  ],
+                                ),
+                              )),
+
+                              //This is the User Bio Section to show previous Rides
+                              //Previous Rides
+                              //Motorcycle Info
+                              Container(
+                                  color: Colors.red,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        // SizedBox(
+                                        //   height: size.height * 0.05,
+                                        // ),
+                                        _UserMotorcycles()
+                                      ],
+                                    ),
+                                  )),
+                              SizedBox(
+                                  height: size.height,
+                                  width: size.width,
+                                  child: SingleChildScrollView(
+                                      child: Column(
+                                    children: [
+                                      //This is the Row of the My Garage and Past Rides
+                                      if (snapshot.data["RiderType"] ==
+                                          "Night") ...[
+                                        Text(
+                                          snapshot.data["RiderType"] + " Rider",
+                                          style: GoogleFonts.allura(
+                                              fontStyle: FontStyle.normal,
+                                              textStyle: TextStyle(
+                                                  color: Color(0xff8c92ac),
+                                                  fontSize: 35)),
+                                        ),
+                                      ] else if (snapshot.data["RiderType"] ==
+                                          "Standard") ...[
+                                        Text(
+                                          snapshot.data["RiderType"] + " Rider",
+                                          style: GoogleFonts.bodoniModa(
+                                            fontSize: size.width * 0.07,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                      //This is the List of Buttons
+                                    ],
+                                  ))),
+                            ],
+                          ),
                         ),
                         SizedBox(
-                          height: size.height * 0.010,
-                        ),
-                        Row(
-                          children: [
-                            Spacer(),
-                            _ButtonCard("Friends", Colors.blueGrey[900]),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            _ButtonCard("Garage", Colors.blueGrey[800]),
-                            Spacer()
-                          ],
+                          height: size.height * 0.38,
                         ),
                       ],
                     ),

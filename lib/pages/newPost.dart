@@ -104,9 +104,6 @@ class _NewPostState extends State<NewPost> {
           //Area for Image if not null
           if (selectedGalleryImg != null && selectedFile) ...[
             Card(
-              child: Image.asset(
-                fit: BoxFit.cover,
-              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
