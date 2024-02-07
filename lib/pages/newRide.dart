@@ -38,18 +38,99 @@ class _NewRideState extends State<NewRide> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 31, 31, 31),
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("New Ride"),
-        backgroundColor: const Color.fromARGB(255, 250, 183, 0),
+        title: Text("Create New..."),
+        backgroundColor: kPrimaryAccentColor,
       ),
       body: Center(
-        child: ElevatedButton(
-          child: Text('Start New Ride'),
-          onPressed: () => _showDialog(context),
-        ),
-      ),
+          child: Column(
+        children: [
+          SizedBox(
+            height: size.height * 0.05,
+          ),
+          Card(
+            elevation: 50,
+            shadowColor: Colors.black,
+            color: Color.fromARGB(255, 255, 0, 0),
+            child: SizedBox(
+              width: size.width * 0.8,
+              height: size.height * 0.15,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    //SizedBox
+                    Text(
+                      'Ride Along Event',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: const Color.fromARGB(255, 94, 27, 27),
+                        fontWeight: FontWeight.w500,
+                      ), //Textstyle
+                    ), //Text
+                    const SizedBox(
+                      height: 10,
+                    ), //SizedBox
+                    const Text(
+                      'Invite other riders to join you on your Journey',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ), //Textstyle
+                    ), //Text
+                    const SizedBox(
+                      height: 5,
+                    ), //SizedBox//SizedBox
+                  ],
+                ), //Column
+              ), //Padding
+            ), //SizedBox
+          ),
+          SizedBox(
+            height: size.height * 0.05,
+          ),
+          Card(
+            elevation: 50,
+            shadowColor: Colors.black,
+            color: Color.fromARGB(255, 43, 255, 0),
+            child: SizedBox(
+              width: size.width * 0.8,
+              height: size.height * 0.15,
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    //SizedBox
+                    Text(
+                      'Free Ride',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Color.fromARGB(255, 27, 94, 42),
+                        fontWeight: FontWeight.w500,
+                      ), //Textstyle
+                    ), //Text
+                    SizedBox(
+                      height: 10,
+                    ), //SizedBox
+                    Text(
+                      'Share your location while you ride with other Riders',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 31, 49, 39),
+                      ), //Textstyle
+                    ), //Text
+                    //SizedBox//SizedBox
+                  ],
+                ), //Column
+              ), //Padding
+            ), //SizedBox
+          ),
+        ],
+      )),
     );
   }
 }
