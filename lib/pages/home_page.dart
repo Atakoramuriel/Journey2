@@ -82,20 +82,7 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               );
-              //  showDialog(
-              //     context: context,
-              //     builder: (BuildContext context) {
-              //       return AlertDialog(
-              //         title: Text('New Post'),
-              //         content: Text('This is an alert dialog.'),
-              //         actions: <Widget>[
-              //           Row(
-              //             children: [Text("HERE")],
-              //           ),
-              //         ],
-              //       );
-              //     },
-              //   );
+
               print("Bring up New Ride option or Join Button");
             } else if (currentTab == 3) {
               Navigator.push(
@@ -109,137 +96,117 @@ class _HomePageState extends State<HomePage> {
               print("Bring up New Post from Profile Page");
             }
           });
-          //NewPost(context);
-          //No pop up, instead navigate to the new post page like an adult
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) {
-          //       return NewPostMenu();
-          //     },
-          //   ),
-          // );
         },
-        backgroundColor: const Color.fromARGB(255, 250, 183, 0),
+        backgroundColor: Color.fromARGB(255, 0, 98, 255),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
         color: Colors.purple[900],
-        child: SizedBox(
-          height: 60,
+        child: Container(
+          height: size.height * 0.07,
+          width: size.width,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MaterialButton(
-                    minWidth: 40,
-                    onPressed: () {
-                      setState(() {
-                        currentScreen = const MapView();
-                        currentTab = 0;
-                      });
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          currentTab == 0 ? Icons.home : Icons.home_outlined,
-                          size: 35,
-                          color: currentTab == 0 ? Colors.amber : Colors.grey,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: size.width * 0.05,
-                  ),
-                  MaterialButton(
-                    minWidth: 40,
-                    onPressed: () {
-                      setState(() {
-                        currentTab = 1;
-                      });
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          currentTab == 1
-                              ? Icons.favorite
-                              : Icons.favorite_outlined,
-                          size: 35,
-                          color: currentTab == 1 ? Colors.amber : Colors.grey,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    width: size.width * 0.20,
-                  ),
-                  MaterialButton(
-                      minWidth: 40,
+              Container(
+                width: size.width,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MaterialButton(
+                      minWidth: 30,
                       onPressed: () {
                         setState(() {
-                          currentTab = 2;
+                          currentScreen = const MapView();
+                          currentTab = 0;
                         });
-                        //redirect
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) {
-                        //       // return ChatPage();
-                        //     },
-                        //   ),
-                        // );
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.chat,
+                            currentTab == 0 ? Icons.home : Icons.home_outlined,
                             size: 35,
-                            color: currentTab == 2 ? Colors.amber : Colors.grey,
+                            color: currentTab == 0 ? Colors.amber : Colors.grey,
                           ),
-                          // Text(
-                          //   'Messages',
-                          //   style: TextStyle(color: currentTab == 2 ? Colors.amber : Colors.blueGrey),
-                          // )
                         ],
-                      )),
-                  SizedBox(
-                    width: size.width * 0.05,
-                  ),
-                  MaterialButton(
-                    minWidth: 40,
-                    onPressed: () {
-                      setState(() {
-                        // currentScreen = Profile();
-                        currentScreen = ProfileView();
-                        currentTab = 3;
-                      });
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Icon(
-                        //   Icons.account_circle,
-                        //   color: currentTab == 1 ? Colors.amber : Colors.blueGrey,
-                        // ),
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundImage: NetworkImage(userProfileImage!),
-                        ),
-                      ],
-                      //remove beloow
-
-                      //end of removal
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      width: size.width * 0.02,
+                    ),
+                    MaterialButton(
+                      minWidth: 40,
+                      onPressed: () {
+                        setState(() {
+                          currentTab = 1;
+                        });
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            currentTab == 1
+                                ? Icons.favorite
+                                : Icons.favorite_outlined,
+                            size: 35,
+                            color: currentTab == 1 ? Colors.amber : Colors.grey,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // SizedBox(
+                    //   width: size.width * 0.3,
+                    // ),
+                    Spacer(),
+                    MaterialButton(
+                        minWidth: 30,
+                        onPressed: () {
+                          setState(() {
+                            currentTab = 2;
+                          });
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.chat,
+                              size: 35,
+                              color:
+                                  currentTab == 2 ? Colors.amber : Colors.grey,
+                            ),
+                          ],
+                        )),
+                    MaterialButton(
+                      minWidth: 40,
+                      onPressed: () {
+                        setState(() {
+                          // currentScreen = Profile();
+                          currentScreen = ProfileView();
+                          currentTab = 3;
+                        });
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Icon(
+                          //   Icons.account_circle,
+                          //   color: currentTab == 1 ? Colors.amber : Colors.blueGrey,
+                          // ),
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage: NetworkImage(userProfileImage!),
+                          ),
+                        ],
+                        //remove beloow
+
+                        //end of removal
+                      ),
+                    ),
+                  ],
+                ),
               )
             ],
           ),

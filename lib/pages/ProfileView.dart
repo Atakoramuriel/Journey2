@@ -79,6 +79,10 @@ class _ProfileViewState extends State<ProfileView>
   var profileImg = FirebaseAuth.instance.currentUser!.photoURL;
   var username = FirebaseAuth.instance.currentUser!.displayName;
 
+  var postCounts;
+  var friendsCount = "0";
+  var ridesCount = "0";
+
   //Quick Functions
 
   //Collection of Widgets
@@ -730,7 +734,7 @@ class _ProfileViewState extends State<ProfileView>
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             final snapshotData = snapshot.data?.docs;
             if (snapshotData!.isEmpty) {
-              return Text("No Data",
+              return Text("No Rider Data...",
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -803,12 +807,22 @@ class _ProfileViewState extends State<ProfileView>
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             final snapshotData = snapshot.data?.docs;
+            postCounts = snapshot.data?.docs.length.toString();
             if (snapshotData!.isEmpty) {
-              return Text("No Data",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * 0.08));
+              return Container(
+                child: Column(
+                  children: [
+                    SizedBox(height: size.height * 0.2),
+                    Center(
+                      child: Text("You havent posted anything yet...",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: size.width * 0.05)),
+                    ),
+                  ],
+                ),
+              );
             } else {
               return ListView.builder(
                   itemCount: snapshotData.length,
@@ -1231,6 +1245,8 @@ class _ProfileViewState extends State<ProfileView>
                   _GhostRider(size),
                 ] else if (snapshot.data["RiderType"] == "Squib") ...[
                   _SquibRider(size),
+                ] else ...[
+                  _StandardRider(size),
                 ],
 
 //                 //End of Animations
@@ -1242,131 +1258,131 @@ class _ProfileViewState extends State<ProfileView>
                         Column(
                           children: [
                             SizedBox(
-                              height: size.height * 0.07,
+                              height: size.height * 0.06,
                             ),
-                            CircleAvatar(
-                              radius: size.width * 0.15,
-                              backgroundImage:
-                                  NetworkImage(snapshot.data["profileImg"]),
+                            Container(
+                              width: size.width,
+                              child: Row(children: [
+                                SizedBox(
+                                  width: size.width * 0.05,
+                                ),
+                                CircleAvatar(
+                                  radius: size.width * 0.10,
+                                  backgroundImage:
+                                      NetworkImage(snapshot.data["profileImg"]),
+                                ),
+                                SizedBox(
+                                  width: size.width * 0.03,
+                                ),
+                                Text(
+                                  snapshot.data["userName"],
+                                  style: TextStyle(
+                                    color: kPrimaryColor,
+                                    fontSize: size.width * 0.075,
+                                  ),
+                                ),
+                              ]),
                             ),
-                            SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            Text(
-                              snapshot.data["userName"],
-                              style: TextStyle(
-                                color: kPrimaryColor,
-                                fontSize: size.width * 0.06,
+
+                            Container(
+                              height: size.height * 0.02,
+                              width: size.width,
+                              child: Center(
+                                child: Text(
+                                  snapshot.data["Bio"],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: size.width * 0.05,
+                                  ),
+                                ),
                               ),
                             ),
 
-                            SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            Text(
-                              snapshot.data["Bio"],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.width * 0.05,
+                            Container(
+                              height: size.height * 0.08,
+                              width: size.width,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  //Break into four Columns
+                                  //Posts
+                                  Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    height: size.height * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${postCounts}",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.07),
+                                        ),
+                                        Text(
+                                          "Posts",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.04),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  //Friends
+                                  Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    height: size.height * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${friendsCount}",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.07),
+                                        ),
+                                        Text(
+                                          "Friends",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.04),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  //rides
+
+                                  //rides
+                                  Container(
+                                    padding: EdgeInsets.all(10.0),
+                                    height: size.height * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${ridesCount}",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.07),
+                                        ),
+                                        Text(
+                                          "Rides",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.04),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
 
                             //This is the Row for the user information
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                //Break into four Columns
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.10,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Rides",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
 
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Friends",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Badges",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Rides",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
                             TabBar(
                               labelColor: Colors.white,
                               indicatorColor: kPrimaryAccentColor,
