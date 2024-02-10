@@ -11,6 +11,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
+import 'package:flutter_google_places/flutter_google_places.dart' as loc;
+import 'package:google_api_headers/google_api_headers.dart' as header;
+import 'package:google_maps_webservice/places.dart' as places;
+
+
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
 
@@ -21,6 +26,7 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   GoogleMapController? _controller;
   LocationData? _currentLocation;
+  var currentPosition;
   StreamSubscription<LocationData>? _locationSubscription;
   StreamSubscription<QuerySnapshot>? _markerSubscription;
   Set<Marker> markers = {};
@@ -32,6 +38,8 @@ class _MapViewState extends State<MapView> {
     _initializeLocation();
     getMarkerData();
   }
+
+
 
   Future<Uint8List> getMarker(String profileUrl) async {
     try {
@@ -135,6 +143,18 @@ class _MapViewState extends State<MapView> {
       });
       _updateUserLocationInFirestore(currentLocation);
     });
+
+      var tlocation = new Location();
+    try {
+      currentPosition = await tlocation.getLocation();
+
+  
+      setState(
+          () {}); //rebuild the widget after getting the current location of the user
+    } on Exception {
+      currentPosition = null;
+    }
+
   }
 
   Future<void> _updateUserLocationInFirestore(LocationData currentLocation) async {
@@ -219,20 +239,28 @@ class _MapViewState extends State<MapView> {
     return Scaffold(
       body: Stack(
         children: [
-          GoogleMap(
-            onMapCreated: (GoogleMapController controller) {
-              _controller = controller;
-            },
-            markers: markers,
-            initialCameraPosition: CameraPosition(
-              target: _currentLocation != null
-                  ? LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!)
-                  : LatLng(37.4219999, -122.0840575),
-              zoom: 14.0,
-            ),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-          ),
+
+          if(currentPosition != null)...[
+              GoogleMap(
+                onMapCreated: (GoogleMapController controller) {
+                  _controller = controller;
+                },
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                markers: markers,
+          
+                initialCameraPosition: CameraPosition(
+                  target: new LatLng(currentPosition.latitude, currentPosition.longitude),
+                  zoom: 15.0,
+                ),
+
+              ),
+          ]else...[
+            Center(
+                child: CircularProgressIndicator(),)
+
+          ]
+
           // Add other widgets that you might need on your map screen
         ],
       ),
