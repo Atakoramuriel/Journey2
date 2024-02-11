@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:journey2/constants.dart';
 
@@ -27,7 +26,7 @@ class Rider {
 
 Future<Rider> getUser(userKey) async {
   print("GetUser Called: " + userKey);
-  var user;
+  Rider user;
 
   //Handle the postsNum instance
   QuerySnapshot tempPostsNum = await FirebaseFirestore.instance
@@ -80,18 +79,21 @@ Future<Rider> getUser(userKey) async {
   });
 
   print("User Created");
-  print(user.username);
-  print(user.profileImg);
+  // print(user.username);
+  // print(user.profileImg);
   return user;
 }
 
 // ignore: must_be_immutable
 class ProfileNavBarHeader extends StatefulWidget
     implements PreferredSizeWidget {
+  const ProfileNavBarHeader({Key? key}) : super(key: key);
+
   @override
   _ProfileAppBarState createState() => _ProfileAppBarState();
 
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class _ProfileAppBarState extends State<ProfileNavBarHeader> {
@@ -112,7 +114,7 @@ class _ProfileAppBarState extends State<ProfileNavBarHeader> {
           builder: (context, AsyncSnapshot<Rider> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               print("LOADING USER INFO");
-              return Column(
+              return const Column(
                 children: [
                   Center(child: CircularProgressIndicator()),
                 ],
@@ -125,7 +127,7 @@ class _ProfileAppBarState extends State<ProfileNavBarHeader> {
 
             return Container(
                 height: size.height * 0.3,
-                padding: EdgeInsets.only(left: 0, right: 10, top: 0),
+                padding: const EdgeInsets.only(left: 0, right: 10, top: 0),
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -147,7 +149,7 @@ class _ProfileAppBarState extends State<ProfileNavBarHeader> {
 
   @override
   // TODO: implement preferredSize
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 // //Hold

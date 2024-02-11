@@ -1,12 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; //This is the push and pull
+//This is the push and pull
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
-import 'package:journey2/pages/ProfileView.dart';
-import 'package:journey2/pages/home_page.dart';
 
 class NewRide extends StatefulWidget {
   const NewRide({Key? key}) : super(key: key);
@@ -27,7 +21,7 @@ class _NewRideState extends State<NewRide> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Container(
+          child: const SizedBox(
             width: 200.0, // Set your desired width and height
             height: 200.0,
           ),
@@ -43,7 +37,7 @@ class _NewRideState extends State<NewRide> {
       backgroundColor: const Color.fromARGB(255, 31, 31, 31),
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("Create New..."),
+        title: const Text("Create New..."),
         backgroundColor: kPrimaryAccentColor,
       ),
       body: Center(
@@ -55,12 +49,12 @@ class _NewRideState extends State<NewRide> {
           Card(
             elevation: 50,
             shadowColor: Colors.black,
-            color: Color.fromARGB(255, 255, 0, 0),
+            color: const Color.fromARGB(255, 255, 0, 0),
             child: SizedBox(
               width: size.width * 0.8,
               height: size.height * 0.15,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
                 child: Column(
                   children: [
                     //SizedBox
@@ -68,21 +62,21 @@ class _NewRideState extends State<NewRide> {
                       'Ride Along Event',
                       style: TextStyle(
                         fontSize: 30,
-                        color: const Color.fromARGB(255, 94, 27, 27),
+                        color: Color.fromARGB(255, 94, 27, 27),
                         fontWeight: FontWeight.w500,
                       ), //Textstyle
                     ), //Text
-                    const SizedBox(
+                    SizedBox(
                       height: 10,
                     ), //SizedBox
-                    const Text(
+                    Text(
                       'Invite other riders to join you on your Journey',
                       style: TextStyle(
                         fontSize: 15,
                         color: Color.fromARGB(255, 255, 255, 255),
                       ), //Textstyle
                     ), //Text
-                    const SizedBox(
+                    SizedBox(
                       height: 5,
                     ), //SizedBox//SizedBox
                   ],
@@ -96,11 +90,11 @@ class _NewRideState extends State<NewRide> {
           Card(
             elevation: 50,
             shadowColor: Colors.black,
-            color: Color.fromARGB(255, 43, 255, 0),
+            color: const Color.fromARGB(255, 43, 255, 0),
             child: SizedBox(
               width: size.width * 0.8,
               height: size.height * 0.15,
-              child: Padding(
+              child: const Padding(
                 padding: EdgeInsets.all(20.0),
                 child: Column(
                   children: [
