@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -11,9 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-import 'package:flutter_google_places/flutter_google_places.dart' as loc;
-import 'package:google_api_headers/google_api_headers.dart' as header;
-import 'package:google_maps_webservice/places.dart' as places;
+
+import 'package:custom_info_window/custom_info_window.dart';
 
 
 class MapView extends StatefulWidget {
@@ -24,13 +22,23 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+
+   final CustomInfoWindowController _customInfoWindowController =
+      CustomInfoWindowController();
+
+
+  bool locationUpdated = false;
   GoogleMapController? _controller;
   LocationData? _currentLocation;
   var currentPosition;
   StreamSubscription<LocationData>? _locationSubscription;
   StreamSubscription<QuerySnapshot>? _markerSubscription;
   Set<Marker> markers = {};
-  final double significantDistance = 50; // meters, threshold for significant movement
+  final double significantDistance = 25; // meters, threshold for significant movement
+
+
+
+
 
   @override
   void initState() {
@@ -51,14 +59,14 @@ class _MapViewState extends State<MapView> {
 
       final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
       final Canvas canvas = Canvas(pictureRecorder);
-      final int size = 120;
+      const int size = 120;
       final Paint paint = Paint();
-      final double radius = size / 2;
+      const double radius = size / 2;
 
       paint.color = Colors.white;
-      canvas.drawCircle(Offset(radius, radius), radius, paint);
+      canvas.drawCircle(const Offset(radius, radius), radius, paint);
 
-      final Path clipPath = Path()..addOval(Rect.fromCircle(center: Offset(radius, radius), radius: radius - 10));
+      final Path clipPath = Path()..addOval(Rect.fromCircle(center: const Offset(radius, radius), radius: radius));
       canvas.clipPath(clipPath);
       canvas.drawImage(image, Offset.zero, paint);
 
@@ -84,14 +92,20 @@ class _MapViewState extends State<MapView> {
 
       final markerImage = await getMarker(profileImageUrl);
 
+      
       return Marker(
         markerId: markerId,
+        // position: LatLng(currentPosition.latitude, currentPosition.longitude),
         position: LatLng(latitude, longitude),
         icon: BitmapDescriptor.fromBytes(markerImage),
         infoWindow: InfoWindow(
           title: riderDoc['userName'] as String,
           snippet: 'Last updated: ${doc['timestamp'].toDate()}',
         ),
+        onTap: (){
+
+        },
+      
       );
     } catch (e) {
       print("Error initializing marker: $e");
@@ -110,6 +124,8 @@ class _MapViewState extends State<MapView> {
         initMarker(doc).then((marker) {
           if (marker != null) {
             tempMarkers.add(marker);
+          }else{
+            print("Err Marker is Null on initMarker Function");
           }
         });
       }
@@ -141,25 +157,37 @@ class _MapViewState extends State<MapView> {
       setState(() {
         _currentLocation = currentLocation;
       });
+      // print("Prep Update Location in Firestore");
       _updateUserLocationInFirestore(currentLocation);
+
     });
-
-      var tlocation = new Location();
+      var tlocation = Location();            
     try {
-      currentPosition = await tlocation.getLocation();
-
-  
+      currentPosition = await tlocation.getLocation();     
+      
       setState(
           () {}); //rebuild the widget after getting the current location of the user
     } on Exception {
       currentPosition = null;
     }
-
   }
 
+
   Future<void> _updateUserLocationInFirestore(LocationData currentLocation) async {
+    // print("_UpdateUserLocationFirestore Called Successfully");
     final User? user = FirebaseAuth.instance.currentUser;
-    if (user == null || currentLocation == null) {
+
+  
+
+    if (locationUpdated){
+      // print("Already obtained location");
+      return; //no need to use up resources
+    }
+
+
+
+    if (user == null) {
+      print("NULL User or CurrentLocation in UULF");
       return;
     }
 
@@ -168,9 +196,11 @@ class _MapViewState extends State<MapView> {
 
     final snapshot = await userLocationDoc.get();
     if (!snapshot.exists) {
+      print("Snapshot found in UULF");
       await _createUserLocation(userLocationDoc, userId, currentLocation);
       return;
     }
+
 
     final previousLocation = snapshot.data() as Map<String, dynamic>;
     final previousCoordinates = previousLocation['coordinates'] as Map<String, dynamic>;
@@ -180,8 +210,10 @@ class _MapViewState extends State<MapView> {
     final double distance = _calculateDistance(
         previousLatitude, previousLongitude, currentLocation.latitude!, currentLocation.longitude!
     );
+          // _refreshMarkers(userId, LatLng(currentLocation.latitude!, currentLocation.longitude!));
 
-    if (distance > significantDistance) {
+
+    if (distance > significantDistance || !locationUpdated) {
       await userLocationDoc.update({
         'coordinates': {
           'latitude': currentLocation.latitude,
@@ -189,8 +221,8 @@ class _MapViewState extends State<MapView> {
         },
         'lastSeenTimestamp': FieldValue.serverTimestamp(),
       });
-
       _refreshMarkers(userId, LatLng(currentLocation.latitude!, currentLocation.longitude!));
+      locationUpdated = true;
     }
   }
 
@@ -231,6 +263,8 @@ class _MapViewState extends State<MapView> {
   void dispose() {
     _locationSubscription?.cancel();
     _markerSubscription?.cancel();
+        _customInfoWindowController.dispose();
+
     super.dispose();
   }
 
@@ -241,22 +275,34 @@ class _MapViewState extends State<MapView> {
         children: [
 
           if(currentPosition != null)...[
-              GoogleMap(
-                onMapCreated: (GoogleMapController controller) {
-                  _controller = controller;
-                },
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                markers: markers,
-          
-                initialCameraPosition: CameraPosition(
-                  target: new LatLng(currentPosition.latitude, currentPosition.longitude),
-                  zoom: 15.0,
-                ),
-
-              ),
+              Stack(
+                children: [
+                      GoogleMap(
+                        onTap: (position){
+                          // _customInfoWindowController.hideInfoWindow();
+                        },
+                      onMapCreated: (GoogleMapController controller) {
+                        _controller = controller;
+                      },
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      markers: markers,                
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(currentPosition.latitude, currentPosition.longitude),
+                        zoom: 15.0,
+                      ),
+                    ),  
+                     CustomInfoWindow(
+                        controller: _customInfoWindowController,
+                        height: 75,
+                        width: 150,
+                        offset: 50,
+                      ),           
+                ]
+              )
+           
           ]else...[
-            Center(
+            const Center(
                 child: CircularProgressIndicator(),)
 
           ]

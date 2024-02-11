@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:journey2/auth.dart';
-import 'package:journey2/constants.dart';
 import 'package:journey2/pages/MapView.dart';
 import 'package:journey2/pages/ProfileView.dart';
 import 'package:journey2/pages/newPost.dart';
@@ -78,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return NewRide();
+                    return const NewRide();
                   },
                 ),
               );
@@ -89,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return NewPost();
+                    return const NewPost();
                   },
                 ),
               );
@@ -97,20 +95,20 @@ class _HomePageState extends State<HomePage> {
             }
           });
         },
-        backgroundColor: Color.fromARGB(255, 0, 98, 255),
+        backgroundColor: const Color.fromARGB(255, 0, 98, 255),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
         color: Colors.purple[900],
-        child: Container(
+        child: SizedBox(
           height: size.height * 0.07,
           width: size.width,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Container(
+              SizedBox(
                 width: size.width,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                     // SizedBox(
                     //   width: size.width * 0.3,
                     // ),
-                    Spacer(),
+                    const Spacer(),
                     MaterialButton(
                         minWidth: 30,
                         onPressed: () {
