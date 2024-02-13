@@ -25,7 +25,11 @@ class _MapViewState extends State<MapView> {
   final CustomInfoWindowController _customInfoWindowController =
       CustomInfoWindowController();
 
+  final CustomInfoWindowController _customInfoRideAlongController =
+      CustomInfoWindowController();
+
   bool locationUpdated = false;
+  bool peningRideAlong = false;
   GoogleMapController? _controller;
   LocationData? _currentLocation;
   var currentPosition;
@@ -92,9 +96,12 @@ class _MapViewState extends State<MapView> {
           .collection('Riders')
           .doc(userId)
           .get();
+
       final profileImageUrl = riderDoc['profileImg'] as String;
       final riderUsername = riderDoc['userName'] as String;
       final riderBio = riderDoc['Bio'] as String;
+      final riderLastTime = doc['timestamp'].toDate().toString();
+      final markerType = doc['Type'] as String;
       final markerImage = await getMarker(profileImageUrl);
 
       return Marker(
@@ -107,80 +114,204 @@ class _MapViewState extends State<MapView> {
         //   snippet: 'Last updated: ${doc['timestamp'].toDate()}',
         // ),
         onTap: () {
-          _customInfoWindowController.addInfoWindow!(
-            Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: kPrimaryAccentColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundImage: NetworkImage(profileImageUrl),
-                              ),
-                              SizedBox(
-                                width: 8.0,
-                              ),
-                              Text(
-                                riderUsername,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            children: [
-                              Spacer(),
-                              Text(
-                                riderBio,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
-                              ),
-                              Spacer()
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Spacer(),
-                              ElevatedButton(
-                                child: Text("Add Friend"),
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.indigo[700],
-                                  elevation: 0,
-                                ),
-                                onPressed: () {},
-                              ),
-                              Spacer()
-                            ],
-                          )
-                        ],
+          if (markerType == "Rider") {
+            _customInfoWindowController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ui.Color.fromARGB(255, 26, 123, 202),
+                        borderRadius: BorderRadius.circular(4),
                       ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage:
+                                      NetworkImage(profileImageUrl),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  riderUsername,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  riderBio,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  "Last here " + riderLastTime,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                ElevatedButton(
+                                  child: Text("Add Friend"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.indigo[700],
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                Spacer()
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
-                    width: double.infinity,
-                    height: double.infinity,
                   ),
-                ),
-              ],
-            ),
-            LatLng(latitude, longitude),
-          );
+                ],
+              ),
+              LatLng(latitude, longitude),
+            );
+          } else if (markerType == "RideAlong") {
+            _customInfoRideAlongController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ui.Color.fromARGB(255, 100, 15, 28),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            // Row(
+                            //   children: [
+
+                            //   ],
+                            // ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage:
+                                      NetworkImage(profileImageUrl),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  riderUsername,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  riderBio,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  "Start Time " + riderLastTime,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                ElevatedButton(
+                                  child: Text("Join Ride Along"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.indigo[700],
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                Spacer()
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ],
+              ),
+              LatLng(latitude, longitude),
+            );
+          }
         },
       );
     } catch (e) {
@@ -191,7 +322,7 @@ class _MapViewState extends State<MapView> {
 
   void getMarkerData() {
     _markerSubscription = FirebaseFirestore.instance
-        .collection('UserLocation')
+        .collection('Markers')
         .snapshots()
         .listen((QuerySnapshot snapshot) {
       Set<Marker> tempMarkers = {};
@@ -250,7 +381,7 @@ class _MapViewState extends State<MapView> {
 
   Future<void> _updateUserLocationInFirestore(
       LocationData currentLocation) async {
-    // print("_UpdateUserLocationFirestore Called Successfully");
+    print("_UpdateUserLocationFirestorexCalled Successfully");
     final User? user = FirebaseAuth.instance.currentUser;
 
     if (locationUpdated) {
@@ -265,11 +396,12 @@ class _MapViewState extends State<MapView> {
 
     final String userId = user.uid;
     final DocumentReference userLocationDoc =
-        FirebaseFirestore.instance.collection('UserLocation').doc(userId);
+        FirebaseFirestore.instance.collection('Markers').doc(userId);
 
     final snapshot = await userLocationDoc.get();
+
     if (!snapshot.exists) {
-      print("Snapshot found in UULF");
+      print("Snapshot Not found in UULF");
       await _createUserLocation(userLocationDoc, userId, currentLocation);
       return;
     }
@@ -288,12 +420,15 @@ class _MapViewState extends State<MapView> {
     // _refreshMarkers(userId, LatLng(currentLocation.latitude!, currentLocation.longitude!));
 
     if (distance > significantDistance || !locationUpdated) {
+      // print("LAM - Updating User Location");
       await userLocationDoc.update({
         'coordinates': {
           'latitude': currentLocation.latitude,
           'longitude': currentLocation.longitude,
         },
         'lastSeenTimestamp': FieldValue.serverTimestamp(),
+        'timestamp': FieldValue.serverTimestamp(),
+        'Type': "Rider"
       });
       _refreshMarkers(userId,
           LatLng(currentLocation.latitude!, currentLocation.longitude!));
@@ -303,6 +438,7 @@ class _MapViewState extends State<MapView> {
 
   Future<void> _createUserLocation(DocumentReference doc, String userId,
       LocationData currentLocation) async {
+    print("Creating New User Location");
     await doc.set({
       'userId': userId,
       'coordinates': {
@@ -310,6 +446,8 @@ class _MapViewState extends State<MapView> {
         'longitude': currentLocation.longitude,
       },
       'lastSeenTimestamp': FieldValue.serverTimestamp(),
+      'timestamp': FieldValue.serverTimestamp(),
+      'Type': "Rider"
     });
 
     _refreshMarkers(
@@ -338,11 +476,114 @@ class _MapViewState extends State<MapView> {
     return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
   }
 
+  _handleTap(LatLng point) {
+    if (peningRideAlong) {
+      print("Must complete upcoming Ride Along before creating new one");
+      return;
+    }
+    setState(() {
+      markers.add(Marker(
+          markerId: MarkerId(point.toString()),
+          position: point,
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          onTap: () {
+            _customInfoRideAlongController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ui.Color.fromARGB(255, 50, 40, 87),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            Spacer(),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  "New Ride Along",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                ElevatedButton(
+                                  child: Text("Enter Details"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.indigo[700],
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                ElevatedButton(
+                                  child: Text("Cancel"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: ui.Color.fromARGB(255, 68, 10, 15),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    int index = markers.length - 1;
+                                    if (index > 0) {
+                                      markers.remove(markers.elementAt(index));
+                                      setState(() {
+                                        peningRideAlong = false;
+                                        _customInfoRideAlongController
+                                            .hideInfoWindow!();
+                                      });
+                                    }
+                                  },
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            Spacer()
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ],
+              ),
+              point,
+            );
+          }));
+      peningRideAlong = true;
+    });
+  }
+
   @override
   void dispose() {
     _locationSubscription?.cancel();
     _markerSubscription?.cancel();
     _customInfoWindowController.dispose();
+    _customInfoRideAlongController.dispose();
 
     super.dispose();
   }
@@ -356,15 +597,24 @@ class _MapViewState extends State<MapView> {
           if (currentPosition != null) ...[
             Stack(children: [
               GoogleMap(
+                onLongPress: (position) {
+                  //Create New Marker @ Location
+                  _handleTap(position);
+                },
                 onTap: (position) {
+                  //Hide The Map
                   _customInfoWindowController.hideInfoWindow!();
+                  _customInfoRideAlongController.hideInfoWindow!();
                 },
                 onMapCreated: (GoogleMapController controller) {
                   _controller = controller;
                   _customInfoWindowController.googleMapController = controller;
+                  _customInfoRideAlongController.googleMapController =
+                      controller;
                 },
                 onCameraMove: (position) {
                   _customInfoWindowController.onCameraMove!();
+                  _customInfoRideAlongController.onCameraMove!();
                 },
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
@@ -379,6 +629,12 @@ class _MapViewState extends State<MapView> {
                 controller: _customInfoWindowController,
                 height: size.height * 0.20,
                 width: size.width * 0.8,
+                offset: 0,
+              ),
+              CustomInfoWindow(
+                controller: _customInfoRideAlongController,
+                height: size.height * 0.20,
+                width: size.width * 0.85,
                 offset: 0,
               ),
             ])
