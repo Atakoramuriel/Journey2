@@ -10,11 +10,12 @@ import 'package:location/location.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
+import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 class MapView extends StatefulWidget {
+  
   const MapView({Key? key}) : super(key: key);
 
   @override
@@ -22,10 +23,15 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+  bool _isNightMode = false;
   final CustomInfoWindowController _customInfoWindowController =
       CustomInfoWindowController();
 
+  final CustomInfoWindowController _customInfoRideAlongController =
+      CustomInfoWindowController();
+
   bool locationUpdated = false;
+  bool peningRideAlong = false;
   GoogleMapController? _controller;
   LocationData? _currentLocation;
   var currentPosition;
@@ -35,11 +41,187 @@ class _MapViewState extends State<MapView> {
   final double significantDistance =
       25; // meters, threshold for significant movement
 
+  
+
   @override
   void initState() {
     super.initState();
     _initializeLocation();
     getMarkerData();
+  }
+
+  void _toggleMapStyle() async {
+  
+    if (_isNightMode) {
+      _controller?.setMapStyle(null); // Switch to normal mode
+    } else {
+      // Add your night mode style JSON string below
+      String nightStyle = jsonEncode([
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#263c3f"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#6b9a76"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#38414e"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#212a37"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9ca5b3"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#1f2835"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#f3d19c"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#2f3948"
+      }
+    ]
+  },
+  {
+    "featureType": "transit.station",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#515c6d"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  }
+]);
+      _controller?.setMapStyle(nightStyle);
+    }
+    setState(() {
+      _isNightMode = !_isNightMode;
+    });
   }
 
   Future<Uint8List> getMarker(String profileUrl) async {
@@ -92,9 +274,12 @@ class _MapViewState extends State<MapView> {
           .collection('Riders')
           .doc(userId)
           .get();
+
       final profileImageUrl = riderDoc['profileImg'] as String;
       final riderUsername = riderDoc['userName'] as String;
       final riderBio = riderDoc['Bio'] as String;
+      final riderLastTime = doc['timestamp'].toDate().toString();
+      final markerType = doc['Type'] as String;
       final markerImage = await getMarker(profileImageUrl);
 
       return Marker(
@@ -107,80 +292,204 @@ class _MapViewState extends State<MapView> {
         //   snippet: 'Last updated: ${doc['timestamp'].toDate()}',
         // ),
         onTap: () {
-          _customInfoWindowController.addInfoWindow!(
-            Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: kPrimaryAccentColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircleAvatar(
-                                radius: 30,
-                                backgroundImage: NetworkImage(profileImageUrl),
-                              ),
-                              SizedBox(
-                                width: 8.0,
-                              ),
-                              Text(
-                                riderUsername,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Row(
-                            children: [
-                              Spacer(),
-                              Text(
-                                riderBio,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
-                              ),
-                              Spacer()
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Spacer(),
-                              ElevatedButton(
-                                child: Text("Add Friend"),
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.indigo[700],
-                                  elevation: 0,
-                                ),
-                                onPressed: () {},
-                              ),
-                              Spacer()
-                            ],
-                          )
-                        ],
+          if (markerType == "Rider") {
+            _customInfoWindowController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ui.Color.fromARGB(255, 26, 123, 202),
+                        borderRadius: BorderRadius.circular(4),
                       ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage:
+                                      NetworkImage(profileImageUrl),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  riderUsername,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  riderBio,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  "Last here " + riderLastTime,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                ElevatedButton(
+                                  child: Text("Add Friend"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.indigo[700],
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                Spacer()
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
                     ),
-                    width: double.infinity,
-                    height: double.infinity,
                   ),
-                ),
-              ],
-            ),
-            LatLng(latitude, longitude),
-          );
+                ],
+              ),
+              LatLng(latitude, longitude),
+            );
+          } else if (markerType == "RideAlong") {
+            _customInfoRideAlongController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ui.Color.fromARGB(255, 100, 15, 28),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            // Row(
+                            //   children: [
+
+                            //   ],
+                            // ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                CircleAvatar(
+                                  radius: 30,
+                                  backgroundImage:
+                                      NetworkImage(profileImageUrl),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  riderUsername,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  riderBio,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                Text(
+                                  "Start Time " + riderLastTime,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                ElevatedButton(
+                                  child: Text("Join Ride Along"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.indigo[700],
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                Spacer()
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ],
+              ),
+              LatLng(latitude, longitude),
+            );
+          }
         },
       );
     } catch (e) {
@@ -191,7 +500,7 @@ class _MapViewState extends State<MapView> {
 
   void getMarkerData() {
     _markerSubscription = FirebaseFirestore.instance
-        .collection('UserLocation')
+        .collection('Markers')
         .snapshots()
         .listen((QuerySnapshot snapshot) {
       Set<Marker> tempMarkers = {};
@@ -250,7 +559,7 @@ class _MapViewState extends State<MapView> {
 
   Future<void> _updateUserLocationInFirestore(
       LocationData currentLocation) async {
-    // print("_UpdateUserLocationFirestore Called Successfully");
+    print("_UpdateUserLocationFirestorexCalled Successfully");
     final User? user = FirebaseAuth.instance.currentUser;
 
     if (locationUpdated) {
@@ -265,11 +574,12 @@ class _MapViewState extends State<MapView> {
 
     final String userId = user.uid;
     final DocumentReference userLocationDoc =
-        FirebaseFirestore.instance.collection('UserLocation').doc(userId);
+        FirebaseFirestore.instance.collection('Markers').doc(userId);
 
     final snapshot = await userLocationDoc.get();
+
     if (!snapshot.exists) {
-      print("Snapshot found in UULF");
+      print("Snapshot Not found in UULF");
       await _createUserLocation(userLocationDoc, userId, currentLocation);
       return;
     }
@@ -288,12 +598,15 @@ class _MapViewState extends State<MapView> {
     // _refreshMarkers(userId, LatLng(currentLocation.latitude!, currentLocation.longitude!));
 
     if (distance > significantDistance || !locationUpdated) {
+      // print("LAM - Updating User Location");
       await userLocationDoc.update({
         'coordinates': {
           'latitude': currentLocation.latitude,
           'longitude': currentLocation.longitude,
         },
         'lastSeenTimestamp': FieldValue.serverTimestamp(),
+        'timestamp': FieldValue.serverTimestamp(),
+        'Type': "Rider"
       });
       _refreshMarkers(userId,
           LatLng(currentLocation.latitude!, currentLocation.longitude!));
@@ -303,6 +616,7 @@ class _MapViewState extends State<MapView> {
 
   Future<void> _createUserLocation(DocumentReference doc, String userId,
       LocationData currentLocation) async {
+    print("Creating New User Location");
     await doc.set({
       'userId': userId,
       'coordinates': {
@@ -310,6 +624,8 @@ class _MapViewState extends State<MapView> {
         'longitude': currentLocation.longitude,
       },
       'lastSeenTimestamp': FieldValue.serverTimestamp(),
+      'timestamp': FieldValue.serverTimestamp(),
+      'Type': "Rider"
     });
 
     _refreshMarkers(
@@ -338,11 +654,114 @@ class _MapViewState extends State<MapView> {
     return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
   }
 
+  _handleTap(LatLng point) {
+    if (peningRideAlong) {
+      print("Must complete upcoming Ride Along before creating new one");
+      return;
+    }
+    setState(() {
+      markers.add(Marker(
+          markerId: MarkerId(point.toString()),
+          position: point,
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          onTap: () {
+            _customInfoRideAlongController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: ui.Color.fromARGB(255, 50, 40, 87),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1.0),
+                        child: Column(
+                          children: [
+                            Spacer(),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  "New Ride Along",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              children: [
+                                Spacer(),
+                                ElevatedButton(
+                                  child: Text("Enter Details"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.indigo[700],
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                ElevatedButton(
+                                  child: Text("Cancel"),
+                                  style: ElevatedButton.styleFrom(
+                                    primary: ui.Color.fromARGB(255, 68, 10, 15),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    int index = markers.length - 1;
+                                    if (index > 0) {
+                                      markers.remove(markers.elementAt(index));
+                                      setState(() {
+                                        peningRideAlong = false;
+                                        _customInfoRideAlongController
+                                            .hideInfoWindow!();
+                                      });
+                                    }
+                                  },
+                                ),
+                                Spacer()
+                              ],
+                            ),
+                            Spacer()
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ],
+              ),
+              point,
+            );
+          }));
+      peningRideAlong = true;
+    });
+  }
+
   @override
   void dispose() {
     _locationSubscription?.cancel();
     _markerSubscription?.cancel();
     _customInfoWindowController.dispose();
+    _customInfoRideAlongController.dispose();
 
     super.dispose();
   }
@@ -356,15 +775,24 @@ class _MapViewState extends State<MapView> {
           if (currentPosition != null) ...[
             Stack(children: [
               GoogleMap(
+                onLongPress: (position) {
+                  //Create New Marker @ Location
+                  _handleTap(position);
+                },
                 onTap: (position) {
+                  //Hide The Map
                   _customInfoWindowController.hideInfoWindow!();
+                  _customInfoRideAlongController.hideInfoWindow!();
                 },
                 onMapCreated: (GoogleMapController controller) {
                   _controller = controller;
                   _customInfoWindowController.googleMapController = controller;
+                  _customInfoRideAlongController.googleMapController =
+                      controller;
                 },
                 onCameraMove: (position) {
                   _customInfoWindowController.onCameraMove!();
+                  _customInfoRideAlongController.onCameraMove!();
                 },
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
@@ -381,16 +809,30 @@ class _MapViewState extends State<MapView> {
                 width: size.width * 0.8,
                 offset: 0,
               ),
+              CustomInfoWindow(
+                controller: _customInfoRideAlongController,
+                height: size.height * 0.20,
+                width: size.width * 0.85,
+                offset: 0,
+              ),
             ])
           ] else ...[
             const Center(
               child: CircularProgressIndicator(),
             )
           ]
+          
 
           // Add other widgets that you might need on your map screen
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+      onPressed: _toggleMapStyle,
+      tooltip: 'Toggle Map Mode',
+      child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop, // This places the FAB at the top left
+
     );
   }
 }

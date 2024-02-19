@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -53,9 +52,27 @@ class _ProfileViewState extends State<ProfileView>
   //Test Tab Controllers
   //TabController _tabController;
   final List<Tab> _tabs = <Tab>[
-    const Tab(text: 'Posts'),
-    const Tab(text: 'Garage'),
-    const Tab(text: 'Rides'),
+    const Tab(
+      text: 'Posts',
+      icon: const Icon(
+        Icons.post_add,
+        color: Colors.white,
+      ),
+    ),
+    const Tab(
+      text: 'Garage',
+      icon: Icon(
+        Icons.motorcycle,
+        color: Colors.white,
+      ),
+    ),
+    const Tab(
+      text: 'Trips',
+      icon: Icon(
+        Icons.map,
+        color: Colors.white,
+      ),
+    ),
   ];
 
   //Animated Variables End
@@ -775,7 +792,10 @@ class _ProfileViewState extends State<ProfileView>
                                       "Pressed More Options Button on Post By ${snapshotData[index]["userName"]}");
                                 });
                               },
-                              icon: const Icon(Icons.more_horiz))
+                              icon: const Icon(
+                                Icons.more_horiz,
+                                color: Colors.white,
+                              )),
                         ],
                       ),
                     );
@@ -796,7 +816,7 @@ class _ProfileViewState extends State<ProfileView>
     TextEditingController postText = TextEditingController();
 
     return SizedBox(
-      height: size.height * 1.5,
+      height: size.height * 0.75,
       width: size.width,
       child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -808,6 +828,7 @@ class _ProfileViewState extends State<ProfileView>
             postCounts = snapshot.data?.docs.length.toString();
             if (snapshotData!.isEmpty) {
               return Container(
+                color: Color.fromARGB(49, 165, 14, 3),
                 child: Column(
                   children: [
                     SizedBox(height: size.height * 0.2),
@@ -1057,7 +1078,7 @@ class _ProfileViewState extends State<ProfileView>
     List userMotorcycles = [];
     // ignore: sized_box_for_whitespace
     return Container(
-      height: size.height,
+      height: size.height * 0.75,
       width: size.width,
       child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -1069,11 +1090,20 @@ class _ProfileViewState extends State<ProfileView>
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             final snapshotData = snapshot.data?.docs;
             if (snapshotData!.isEmpty) {
-              return Text("No Data",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * 0.08));
+              return Container(
+                child: Column(
+                  children: [
+                    SizedBox(height: size.height * 0.2),
+                    Center(
+                      child: Text("You havent posted anything yet...",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: size.width * 0.05)),
+                    ),
+                  ],
+                ),
+              );
             }
 
             return ListView.builder(
@@ -1169,34 +1199,39 @@ class _ProfileViewState extends State<ProfileView>
           });
 
     //second Animation steps
-    ac2 = AnimationController(vsync: this, duration: const Duration(seconds: 10));
+    ac2 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 10));
     animation2 = Tween<double>(begin: -1250, end: 650).animate(ac2)
       ..addListener(() {
         setState(() {});
       });
     //third Animation steps
-    ac3 = AnimationController(vsync: this, duration: const Duration(seconds: 9));
+    ac3 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 9));
     animation3 = Tween<double>(begin: -1050, end: 650).animate(ac3)
       ..addListener(() {
         setState(() {});
       });
 
     //fourth Animation steps
-    ac4 = AnimationController(vsync: this, duration: const Duration(seconds: 7));
+    ac4 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 7));
     animation4 = Tween<double>(begin: -500, end: 750).animate(ac4)
       ..addListener(() {
         setState(() {});
       });
 
     //fifth Animation steps
-    ac5 = AnimationController(vsync: this, duration: const Duration(seconds: 11));
+    ac5 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 11));
     animation5 = Tween<double>(begin: -1220, end: 750).animate(ac4)
       ..addListener(() {
         setState(() {});
       });
 
     //final Animation steps
-    ac6 = AnimationController(vsync: this, duration: const Duration(seconds: 5));
+    ac6 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5));
     animation6 = Tween<double>(begin: -1000, end: 750).animate(ac4)
       ..addListener(() {
         setState(() {});
@@ -1218,7 +1253,6 @@ class _ProfileViewState extends State<ProfileView>
   //For the desposal
   @override
   void dispose() {
-
     _tab2Controller.dispose();
     animationController.dispose();
     ac2.dispose();
@@ -1286,6 +1320,16 @@ class _ProfileViewState extends State<ProfileView>
                                     fontSize: size.width * 0.055,
                                   ),
                                 ),
+                                const Spacer(),
+                                IconButton(
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      setState(() {});
+                                    },
+                                    icon: const Icon(
+                                      Icons.more_vert,
+                                      color: Colors.white,
+                                    )),
                               ]),
                             ),
 
@@ -1421,7 +1465,7 @@ class _ProfileViewState extends State<ProfileView>
                               //Previous Rides
                               //Motorcycle Info
                               Container(
-                                  color: Colors.red,
+                                  color: Colors.black,
                                   child: SingleChildScrollView(
                                     child: Column(
                                       children: [
