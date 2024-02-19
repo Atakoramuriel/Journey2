@@ -10,11 +10,12 @@ import 'package:location/location.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
+import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 class MapView extends StatefulWidget {
+  
   const MapView({Key? key}) : super(key: key);
 
   @override
@@ -22,6 +23,7 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
+  bool _isNightMode = false;
   final CustomInfoWindowController _customInfoWindowController =
       CustomInfoWindowController();
 
@@ -39,11 +41,187 @@ class _MapViewState extends State<MapView> {
   final double significantDistance =
       25; // meters, threshold for significant movement
 
+  
+
   @override
   void initState() {
     super.initState();
     _initializeLocation();
     getMarkerData();
+  }
+
+  void _toggleMapStyle() async {
+  
+    if (_isNightMode) {
+      _controller?.setMapStyle(null); // Switch to normal mode
+    } else {
+      // Add your night mode style JSON string below
+      String nightStyle = jsonEncode([
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#263c3f"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#6b9a76"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#38414e"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#212a37"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9ca5b3"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#1f2835"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#f3d19c"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#2f3948"
+      }
+    ]
+  },
+  {
+    "featureType": "transit.station",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#515c6d"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  }
+]);
+      _controller?.setMapStyle(nightStyle);
+    }
+    setState(() {
+      _isNightMode = !_isNightMode;
+    });
   }
 
   Future<Uint8List> getMarker(String profileUrl) async {
@@ -643,10 +821,18 @@ class _MapViewState extends State<MapView> {
               child: CircularProgressIndicator(),
             )
           ]
+          
 
           // Add other widgets that you might need on your map screen
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+      onPressed: _toggleMapStyle,
+      tooltip: 'Toggle Map Mode',
+      child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop, // This places the FAB at the top left
+
     );
   }
 }
