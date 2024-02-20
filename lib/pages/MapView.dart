@@ -13,6 +13,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'SearchComponent.dart';
+
 
 class MapView extends StatefulWidget {
   
@@ -815,6 +817,19 @@ class _MapViewState extends State<MapView> {
                 width: size.width * 0.85,
                 offset: 0,
               ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10, // Adjust for padding from top
+                left: 10,
+                right: 10,
+                child: SearchComponent(
+                  onSearchSubmit: (query) {
+                    // Here you'll implement what happens when a search is submitted
+                // For now, let's just print the query
+                     print("Search query: $query");
+                     // You'll add logic here to handle the search query, such as updating the map
+                  },
+                ),
+              ),
             ])
           ] else ...[
             const Center(
@@ -826,13 +841,20 @@ class _MapViewState extends State<MapView> {
           // Add other widgets that you might need on your map screen
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: Padding(
+  padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
+  child: Align(
+    alignment: Alignment.bottomRight,
+    child: FloatingActionButton(
       onPressed: _toggleMapStyle,
       tooltip: 'Toggle Map Mode',
       child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop, // This places the FAB at the top left
+    ),
+  ),
+), // This places the FAB at the top left
 
     );
   }
 }
+
+  
