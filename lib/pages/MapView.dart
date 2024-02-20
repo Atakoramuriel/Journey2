@@ -766,7 +766,8 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  @override
+  
+	@override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -836,7 +837,7 @@ class _MapViewState extends State<MapView> {
       child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
     ),
   ),
-), // This places the FAB at the top left
+), 
 
     );
   }
