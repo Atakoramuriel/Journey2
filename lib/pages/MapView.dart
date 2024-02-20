@@ -766,7 +766,8 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  @override
+  
+	@override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -826,12 +827,17 @@ class _MapViewState extends State<MapView> {
           // Add other widgets that you might need on your map screen
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: Padding(
+  padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
+  child: Align(
+    alignment: Alignment.bottomRight,
+    child: FloatingActionButton(
       onPressed: _toggleMapStyle,
       tooltip: 'Toggle Map Mode',
       child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startTop, // This places the FAB at the top left
+    ),
+  ),
+), // This places the FAB at the top left
 
     );
   }
