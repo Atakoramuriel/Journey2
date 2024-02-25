@@ -41,7 +41,37 @@ class _MapViewState extends State<MapView> {
   final double significantDistance =
       25; // meters, threshold for significant movement
 
-  
+    Widget _buildSearchBar() {
+    return Positioned(
+      top: 50, 
+      right: 15,
+      left: 15,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: 'Search here...',
+            border: InputBorder.none,
+            icon: Icon(Icons.search),
+          ),
+          onChanged: (value) {
+            // Future search logic implementation
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -366,13 +396,14 @@ class _MapViewState extends State<MapView> {
                             Row(
                               children: [
                                 Spacer(),
-                                ElevatedButton(
-                                  child: Text("Add Friend"),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {},
+                               ElevatedButton(
+  child: Text("Enter Details"),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.indigo[700],  // Correct way to set button color
+    elevation: 0,
+  ),
+  onPressed: () {},
+
                                 ),
                                 Spacer()
                               ],
@@ -468,12 +499,13 @@ class _MapViewState extends State<MapView> {
                               children: [
                                 Spacer(),
                                 ElevatedButton(
-                                  child: Text("Join Ride Along"),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {},
+  child: Text("Join Ride Along"),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.indigo[700], // Changed from 'primary' to 'backgroundColor'
+    elevation: 0,
+  ),
+  onPressed: () {},
+
                                 ),
                                 Spacer()
                               ],
@@ -707,24 +739,24 @@ class _MapViewState extends State<MapView> {
                             Row(
                               children: [
                                 Spacer(),
-                                ElevatedButton(
-                                  child: Text("Enter Details"),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {},
+                               ElevatedButton(
+  child: Text("Enter Details"),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.indigo[700], // Changed from 'primary' to 'backgroundColor'
+    elevation: 0,
+  ),
+  onPressed: () {}
                                 ),
                                 SizedBox(
                                   width: 5,
                                 ),
                                 ElevatedButton(
-                                  child: Text("Cancel"),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: ui.Color.fromARGB(255, 68, 10, 15),
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {
+  child: Text("Cancel"),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: ui.Color.fromARGB(255, 68, 10, 15), // Updated property
+    elevation: 0,
+  ),
+  onPressed: () {
                                     int index = markers.length - 1;
                                     if (index > 0) {
                                       markers.remove(markers.elementAt(index));
@@ -768,77 +800,74 @@ class _MapViewState extends State<MapView> {
 
   
 	@override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (currentPosition != null) ...[
-            Stack(children: [
-              GoogleMap(
-                onLongPress: (position) {
-                  //Create New Marker @ Location
-                  _handleTap(position);
-                },
-                onTap: (position) {
-                  //Hide The Map
-                  _customInfoWindowController.hideInfoWindow!();
-                  _customInfoRideAlongController.hideInfoWindow!();
-                },
-                onMapCreated: (GoogleMapController controller) {
-                  _controller = controller;
-                  _customInfoWindowController.googleMapController = controller;
-                  _customInfoRideAlongController.googleMapController =
-                      controller;
-                },
-                onCameraMove: (position) {
-                  _customInfoWindowController.onCameraMove!();
-                  _customInfoRideAlongController.onCameraMove!();
-                },
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                markers: markers,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                      currentPosition.latitude, currentPosition.longitude),
-                  zoom: 15.0,
-                ),
+Widget build(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
+  return Scaffold(
+    body: Stack(
+      children: [
+        if (currentPosition != null) ...[
+          Stack(children: [
+            GoogleMap(
+              onLongPress: (position) {
+                //Create New Marker @ Location
+                _handleTap(position);
+              },
+              onTap: (position) {
+                //Hide The Map
+                _customInfoWindowController.hideInfoWindow!();
+                _customInfoRideAlongController.hideInfoWindow!();
+              },
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+                _customInfoWindowController.googleMapController = controller;
+                _customInfoRideAlongController.googleMapController =
+                    controller;
+              },
+              onCameraMove: (position) {
+                _customInfoWindowController.onCameraMove!();
+                _customInfoRideAlongController.onCameraMove!();
+              },
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              markers: markers,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                    currentPosition.latitude, currentPosition.longitude),
+                zoom: 15.0,
               ),
-              CustomInfoWindow(
-                controller: _customInfoWindowController,
-                height: size.height * 0.20,
-                width: size.width * 0.8,
-                offset: 0,
-              ),
-              CustomInfoWindow(
-                controller: _customInfoRideAlongController,
-                height: size.height * 0.20,
-                width: size.width * 0.85,
-                offset: 0,
-              ),
-            ])
-          ] else ...[
-            const Center(
-              child: CircularProgressIndicator(),
-            )
-          ]
-          
-
-          // Add other widgets that you might need on your map screen
-        ],
-      ),
-      floatingActionButton: Padding(
-  padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
-  child: Align(
-    alignment: Alignment.bottomRight,
-    child: FloatingActionButton(
-      onPressed: _toggleMapStyle,
-      tooltip: 'Toggle Map Mode',
-      child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+            ),
+            CustomInfoWindow(
+              controller: _customInfoWindowController,
+              height: size.height * 0.20,
+              width: size.width * 0.8,
+              offset: 50,
+            ),
+            CustomInfoWindow(
+              controller: _customInfoRideAlongController,
+              height: size.height * 0.20,
+              width: size.width * 0.85,
+              offset: 50,
+            ),
+            _buildSearchBar(), // Added the search bar on top of the map
+          ])
+        ] else ...[
+          const Center(
+            child: CircularProgressIndicator(),
+          )
+        ]
+      ],
     ),
-  ),
-), // This places the FAB at the top left
-
-    );
-  }
+    floatingActionButton: Padding(
+      padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: FloatingActionButton(
+          onPressed: _toggleMapStyle,
+          tooltip: 'Toggle Map Mode',
+          child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+        ),
+      ),
+    ),
+  );
+}
 }
