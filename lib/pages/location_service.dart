@@ -5,7 +5,7 @@ import 'dart:convert' as convert;
 class LocationService {
   final String key = 'AIzaSyCnsAxexDsIn6jzg3AcmxYT9v559SAp4mE';
 
-  Future<String> getPlaceId(String input) async {
+   Future<String> getPlaceId(String input) async {
     final String url =
         'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=$input&inputtype=textquery&key=$key';
 
@@ -42,6 +42,8 @@ class LocationService {
       'end_location': json['routes'][0]['legs'][0]['end_location'],
       'polyline': json['routes'][0]['overview_polyline']['points'],
       'polyline_decoded': PolylinePoints().decodePolyline(json['routes'][0]['overview_polyline']['points']),
+      'distance': json['routes'][0]['legs'][0]['distance']['text'],
+      'duration': json['routes'][0]['legs'][0]['duration']['text'],
     };
 
     print(results);

@@ -32,70 +32,76 @@ class _SearchComponentState extends State<SearchComponent> {
   List<AutocompletePrediction> _predictions = [];
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  // Handle menu button press
-                },
-              ),
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    hintText: 'Search here',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 15),
-                  ),
-                  onChanged: (value) {
-                    _getAutocompleteSuggestions(value);
-                  },
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {
-                  widget.onSearchSubmit('', _controller.text);
-                },
-              ),
-            ],
-          ),
-          if (_predictions.isNotEmpty)
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: _predictions.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_predictions[index].description),
-                  onTap: () {
-                    _controller.text = _predictions[index].description;
-                    widget.onSearchSubmit(_predictions[index].placeId, _predictions[index].description);
-                    _predictions = [];
-                  },
-                );
+Widget build(BuildContext context) {
+  return Container(
+    margin: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 5,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                // Handle menu button press
               },
             ),
-        ],
-      ),
-    );
-  }
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: 'Search here',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+                ),
+                onChanged: (value) {
+                  _getAutocompleteSuggestions(value);
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                widget.onSearchSubmit('', _controller.text);
+              },
+            ),
+          ],
+        ),
+        if (_predictions.isNotEmpty)
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: _predictions.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(_predictions[index].description),
+                onTap: () {
+                  _controller.text = _predictions[index].description;
+                  widget.onSearchSubmit(
+                    _predictions[index].placeId, 
+                    _predictions[index].description
+                  );
+                  setState(() {
+                    _predictions = []; // Clears the predictions as one has been selected
+                  });
+                },
+              );
+            },
+          ),
+      ],
+    ),
+  );
+}
+
 
   void _getAutocompleteSuggestions(String input) async {
     if (input.isEmpty) {

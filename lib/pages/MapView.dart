@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -16,6 +17,9 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'SearchComponent.dart';
 import 'location_service.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+
+
 
 
 
@@ -779,34 +783,34 @@ class _MapViewState extends State<MapView> {
      _updateMapView(directions);
   }
 
-  void _updateMapView(Map<String, dynamic> directions) {
-    // Clear existing polylines
-    setState(() {
-      _polylines.clear();
-    });
+    void _updateMapView(Map<String, dynamic> directions) {
+  setState(() {
+    _polylines.clear(); // Clear existing polylines
+    _polylines.add(Polyline(
+      polylineId: PolylineId("route"),
+      points: directions['polyline_decoded']
+          .map<LatLng>((point) => LatLng(point.latitude, point.longitude))
+          .toList(),
+      color: Colors.blue,
+      width: 5,
+    ));
+  });
 
-    // Create a new polyline with the decoded points
-    setState(() {
-      _polylines.add(
-        Polyline(
-          polylineId: PolylineId('route'),
-          color: Colors.blue,
-          width: 5,
-          points: directions['polyline_decoded']
-              .map((point) => LatLng(point.latitude, point.longitude))
-              .toList(),
-        ),
-      );
-    });
+  // Update the map bounds
+  final southwest = directions['bounds_sw'];
+  final northeast = directions['bounds_ne'];
+  final bounds = LatLngBounds(
+    southwest: LatLng(southwest['lat'], southwest['lng']),
+    northeast: LatLng(northeast['lat'], northeast['lng']),
+  );
 
-    final southwest = directions['bounds_sw'];
-    final northeast = directions['bounds_ne'];
-    final bounds = LatLngBounds(
-      southwest: LatLng(southwest['lat'], southwest['lng']),
-      northeast: LatLng(northeast['lat'], northeast['lng']),
-    );
-    _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
-  }
+  _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+}
+
+
+
+  
+
 
   @override
   void dispose() {
@@ -818,7 +822,7 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-@override
+ @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -871,7 +875,7 @@ class _MapViewState extends State<MapView> {
                   offset: 0,
                 ),
                 Positioned(
-                  top: 16.0, // Adjust the top position as needed
+                  top: 14.0, // Adjust the top position as needed
                   left: 16.0,
                   right: 16.0,
                   child: SearchComponent(
