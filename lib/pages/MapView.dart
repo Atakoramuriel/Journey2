@@ -371,7 +371,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Add Friend"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -472,7 +472,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Join Ride Along"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -712,7 +712,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Enter Details"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -723,7 +723,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Cancel"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: ui.Color.fromARGB(255, 68, 10, 15),
+                                    backgroundColor: ui.Color.fromARGB(255, 68, 10, 15),
                                     elevation: 0,
                                   ),
                                   onPressed: () {
@@ -768,93 +768,86 @@ class _MapViewState extends State<MapView> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (currentPosition != null) ...[
-            Stack(children: [
-              GoogleMap(
-                onLongPress: (position) {
-                  //Create New Marker @ Location
-                  _handleTap(position);
-                },
-                onTap: (position) {
-                  //Hide The Map
-                  _customInfoWindowController.hideInfoWindow!();
-                  _customInfoRideAlongController.hideInfoWindow!();
-                },
-                onMapCreated: (GoogleMapController controller) {
-                  _controller = controller;
-                  _customInfoWindowController.googleMapController = controller;
-                  _customInfoRideAlongController.googleMapController =
-                      controller;
-                },
-                onCameraMove: (position) {
-                  _customInfoWindowController.onCameraMove!();
-                  _customInfoRideAlongController.onCameraMove!();
-                },
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                markers: markers,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                      currentPosition.latitude, currentPosition.longitude),
-                  zoom: 15.0,
-                ),
+@override
+Widget build(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
+  return Scaffold(
+    body: Stack(
+      children: [
+        if (currentPosition != null) ...[
+          Stack(children: [
+            GoogleMap(
+              onLongPress: (position) {
+                //Create New Marker @ Location
+                _handleTap(position);
+              },
+              onTap: (position) {
+                //Hide The Map
+                _customInfoWindowController.hideInfoWindow!();
+                _customInfoRideAlongController.hideInfoWindow!();
+              },
+              onMapCreated: (GoogleMapController controller) {
+                _controller = controller;
+                _customInfoWindowController.googleMapController = controller;
+                _customInfoRideAlongController.googleMapController =
+                    controller;
+              },
+              onCameraMove: (position) {
+                _customInfoWindowController.onCameraMove!();
+                _customInfoRideAlongController.onCameraMove!();
+              },
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              markers: markers,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                    currentPosition.latitude, currentPosition.longitude),
+                zoom: 15.0,
               ),
-              CustomInfoWindow(
-                controller: _customInfoWindowController,
-                height: size.height * 0.20,
-                width: size.width * 0.8,
-                offset: 0,
+            ),
+            CustomInfoWindow(
+              controller: _customInfoWindowController,
+              height: size.height * 0.20,
+              width: size.width * 0.8,
+              offset: 0,
+            ),
+            CustomInfoWindow(
+              controller: _customInfoRideAlongController,
+              height: size.height * 0.20,
+              width: size.width * 0.85,
+              offset: 0,
+            ),
+            Positioned(
+              top: 16.0, // Adjust the top position as needed
+              left: 16.0,
+              right: 16.0,
+              child: SearchComponent(
+                onSearchSubmit: (query) {
+                  // Handle the search query here
+                  print('Search query: $query');
+                },
               ),
-              CustomInfoWindow(
-                controller: _customInfoRideAlongController,
-                height: size.height * 0.20,
-                width: size.width * 0.85,
-                offset: 0,
-              ),
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 10, // Adjust for padding from top
-                left: 10,
-                right: 10,
-                child: SearchComponent(
-                  onSearchSubmit: (query) {
-                    // Here you'll implement what happens when a search is submitted
-                // For now, let's just print the query
-                     print("Search query: $query");
-                     // You'll add logic here to handle the search query, such as updating the map
-                  },
-                ),
-              ),
-            ])
-          ] else ...[
-            const Center(
-              child: CircularProgressIndicator(),
             )
-          ]
-          
-
-          // Add other widgets that you might need on your map screen
-        ],
-      ),
-      floatingActionButton: Padding(
-  padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
-  child: Align(
-    alignment: Alignment.bottomRight,
-    child: FloatingActionButton(
-      onPressed: _toggleMapStyle,
-      tooltip: 'Toggle Map Mode',
-      child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+          ])
+        ] else ...[
+          const Center(
+            child: CircularProgressIndicator(),
+          )
+        ]
+      ],
     ),
-  ),
-), // This places the FAB at the top left
-
-    );
-  }
+    floatingActionButton: Padding(
+      padding: const EdgeInsets.only(bottom: 60.0),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: FloatingActionButton(
+          onPressed: _toggleMapStyle,
+          tooltip: 'Toggle Map Mode',
+          child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+        ),
+      ),
+    ),
+  );
 }
-
+}
   
