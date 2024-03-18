@@ -43,6 +43,7 @@ dependencies:
   custom_info_window: ^1.0.1
   clustering_google_maps: ^0.1.2-nullsafety.3
   flutter_custom_clippers: ^2.1.0
+  flutter_polyline_points: ^1.0.0
   
 
 
