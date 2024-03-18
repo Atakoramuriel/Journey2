@@ -15,6 +15,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'SearchComponent.dart';
+
 
 class MapView extends StatefulWidget {
   
@@ -786,13 +788,14 @@ class _MapViewState extends State<MapView> {
 
   
 	@override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (currentPosition != null) ...[
-            Stack(children: [
+Widget build(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
+  return Scaffold(
+    body: Stack(
+      children: [
+        if (currentPosition != null) ...[
+          Stack(
+            children: [
               GoogleMap(
                 onLongPress: (position) {
                   //Create New Marker @ Location
@@ -834,29 +837,37 @@ class _MapViewState extends State<MapView> {
                 width: size.width * 0.85,
                 offset: 0,
               ),
-            ])
-          ] else ...[
-            const Center(
-              child: CircularProgressIndicator(),
-            )
-          ]
-          
-
-          // Add other widgets that you might need on your map screen
+              Positioned(
+                top: 16.0, // Adjust the top position as needed
+                left: 16.0,
+                right: 16.0,
+                child: SearchComponent(
+                  onSearchSubmit: (query) {
+                    // Handle the search query here
+                    print('Search query: $query');
+                  },
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
         ],
-      ),
-      floatingActionButton: Padding(
-  padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
-  child: Align(
-    alignment: Alignment.bottomRight,
-    child: FloatingActionButton(
-      onPressed: _toggleMapStyle,
-      tooltip: 'Toggle Map Mode',
-      child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+      ],
     ),
-  ),
-), // This places the FAB at the top left
-
-    );
-  }
+    floatingActionButton: Padding(
+      padding: const EdgeInsets.only(bottom: 60.0),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: FloatingActionButton(
+          onPressed: _toggleMapStyle,
+          tooltip: 'Toggle Map Mode',
+          child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+        ),
+      ),
+    ),
+  );
+}
 }
