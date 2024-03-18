@@ -371,7 +371,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Add Friend"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -472,7 +472,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Join Ride Along"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -715,7 +715,7 @@ class _MapViewState extends State<MapView> {
                                     style: TextStyle(fontSize: 20),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    primary: const ui.Color.fromARGB(
+                                    backgroundColor: const ui.Color.fromARGB(
                                         255, 59, 81, 222),
                                     elevation: 0,
                                   ),
@@ -739,8 +739,7 @@ class _MapViewState extends State<MapView> {
                                     style: TextStyle(fontSize: 20),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    primary:
-                                        ui.Color.fromARGB(255, 216, 32, 47),
+                                    backgroundColor: ui.Color.fromARGB(255, 216, 32, 47),
                                     elevation: 0,
                                   ),
                                   onPressed: () {
