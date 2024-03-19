@@ -857,13 +857,6 @@ Widget build(BuildContext context) {
         ],
       ],
     ),
-<<<<<<< HEAD
-  ),
-), 
-
-    );
-  }
-=======
     floatingActionButton: Padding(
       padding: const EdgeInsets.only(bottom: 60.0),
       child: Align(
@@ -876,6 +869,5 @@ Widget build(BuildContext context) {
       ),
     ),
   );
->>>>>>> origin/DEV
 }
 }
