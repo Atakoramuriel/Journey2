@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -16,6 +17,13 @@ import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'SearchComponent.dart';
+import 'location_service.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+
+
+
+
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -40,6 +48,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
   StreamSubscription<LocationData>? _locationSubscription;
   StreamSubscription<QuerySnapshot>? _markerSubscription;
   Set<Marker> markers = {};
+  Set<Polyline> _polylines = {}; // Add this line
   final double significantDistance =
       25; // meters, threshold for significant movement
 
@@ -484,6 +493,51 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
     });
   }
 
+   void _handleSearchSubmit(String placeId, String description) async {
+    // Retrieve place details using the place ID
+    var place = await LocationService().getPlace(placeId);
+
+    // Extract the latitude and longitude coordinates from the place details
+    var lat = place['geometry']['location']['lat'];
+    var lng = place['geometry']['location']['lng'];
+
+    // Retrieve directions from the user's current location to the destination
+    var directions = await LocationService().getDirections(
+      '${currentPosition.latitude},${currentPosition.longitude}',
+      '$lat,$lng',
+    );
+     _updateMapView(directions);
+  }
+
+    void _updateMapView(Map<String, dynamic> directions) {
+  setState(() {
+    _polylines.clear(); // Clear existing polylines
+    _polylines.add(Polyline(
+      polylineId: PolylineId("route"),
+      points: directions['polyline_decoded']
+          .map<LatLng>((point) => LatLng(point.latitude, point.longitude))
+          .toList(),
+      color: Colors.blue,
+      width: 5,
+    ));
+  });
+
+  // Update the map bounds
+  final southwest = directions['bounds_sw'];
+  final northeast = directions['bounds_ne'];
+  final bounds = LatLngBounds(
+    southwest: LatLng(southwest['lat'], southwest['lng']),
+    northeast: LatLng(northeast['lat'], northeast['lng']),
+  );
+
+  _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+}
+
+
+
+  
+
+
   @override
   void dispose() {
     _locationSubscription?.cancel();
@@ -578,7 +632,7 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
 
     final borderAnimation = ColorTween(
       begin: Colors.lightGreen,
-      end: Colors.green[800],
+      end: Colors.green[900],
     ).animate(
       CurvedAnimation(
         parent: animationController,
@@ -814,87 +868,87 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (currentPosition != null) ...[
-            Stack(
-              children: [
-                GoogleMap(
-                  onLongPress: (position) {
-                    //Create New Marker @ Location
-                    _handleTap(position);
-                  },
-                  onTap: (position) {
-                    //Hide The Map
-                    _customInfoWindowController.hideInfoWindow!();
-                    _customInfoRideAlongController.hideInfoWindow!();
-                  },
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller = controller;
-                    _customInfoWindowController.googleMapController = controller;
-                    _customInfoRideAlongController.googleMapController =
-                        controller;
-                  },
-                  onCameraMove: (position) {
-                    _customInfoWindowController.onCameraMove!();
-                    _customInfoRideAlongController.onCameraMove!();
-                  },
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  markers: markers,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                        currentPosition.latitude, currentPosition.longitude),
-                    zoom: 15.0,
-                  ),
+ @override
+Widget build(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
+  return Scaffold(
+    body: Stack(
+      children: [
+        if (currentPosition != null) ...[
+          Stack(
+            children: [
+              GoogleMap(
+                onLongPress: (position) {
+                  //Create New Marker @ Location
+                  _handleTap(position);
+                },
+                onTap: (position) {
+                  //Hide The Map
+                  _customInfoWindowController.hideInfoWindow!();
+                  _customInfoRideAlongController.hideInfoWindow!();
+                },
+                onMapCreated: (GoogleMapController controller) {
+                  _controller = controller;
+                  _customInfoWindowController.googleMapController = controller;
+                  _customInfoRideAlongController.googleMapController =
+                      controller;
+                },
+                onCameraMove: (position) {
+                  _customInfoWindowController.onCameraMove!();
+                  _customInfoRideAlongController.onCameraMove!();
+                },
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true,
+                markers: markers,
+                polylines: _polylines,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(
+                      currentPosition.latitude, currentPosition.longitude),
+                  zoom: 15.0,
                 ),
-                CustomInfoWindow(
-                  controller: _customInfoWindowController,
-                  height: size.height * 0.20,
-                  width: size.width * 0.8,
-                  offset: 0,
+              ),
+              CustomInfoWindow(
+                controller: _customInfoWindowController,
+                height: size.height * 0.20,
+                width: size.width * 0.8,
+                offset: 0,
+              ),
+              CustomInfoWindow(
+                controller: _customInfoRideAlongController,
+                height: size.height * 0.20,
+                width: size.width * 0.85,
+                offset: 0,
+              ),
+              Positioned(
+                top: 10.0,
+                left: 16.0,
+                right: 16.0,
+                child: SearchComponent(
+                  onSearchSubmit: _handleSearchSubmit,
                 ),
-                CustomInfoWindow(
-                  controller: _customInfoRideAlongController,
-                  height: size.height * 0.20,
-                  width: size.width * 0.85,
-                  offset: 0,
-                ),
-                Positioned(
-                  top: 16.0, // Adjust the top position as needed
-                  left: 16.0,
-                  right: 16.0,
-                  child: SearchComponent(
-                    onSearchSubmit: (query) {
-                      // Handle the search query here
-                      print('Search query: $query');
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ] else ...[
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-          ],
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 60.0),
-        child: Align(
-          alignment: Alignment.bottomRight,
-          child: FloatingActionButton(
-            onPressed: _toggleMapStyle,
-            tooltip: 'Toggle Map Mode',
-            child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+              ),
+            ],
           ),
+        ] else ...[
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ],
+      ],
+    ),
+    floatingActionButton: Padding(
+      padding: const EdgeInsets.only(bottom: 60.0),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: FloatingActionButton(
+          onPressed: _toggleMapStyle,
+          tooltip: 'Toggle Map Mode',
+          child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
         ),
       ),
-    );
-  }
+    ),
+  );
 }
+}
+
+  
