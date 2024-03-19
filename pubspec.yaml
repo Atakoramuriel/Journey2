@@ -7,7 +7,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.15.1 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 
 dependencies:
@@ -45,6 +45,8 @@ dependencies:
   flutter_custom_clippers: ^2.1.0
   flutter_polyline_points: ^1.0.0
   http: ^0.13.4
+  ionicons: ^0.2.1
+
 
 
 
@@ -79,6 +81,8 @@ flutter:
     - assets/images/AzerPromo.png
     - assets/gifs/Vex&Siren.GIF
     - assets/gifs/VS2.GIF
+    - assets/images/avatar.png
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

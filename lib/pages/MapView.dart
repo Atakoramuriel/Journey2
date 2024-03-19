@@ -893,7 +893,7 @@ class _MapViewState extends State<MapView> {
                   offset: 0,
                 ),
                 Positioned(
-                  top: 10.0, // Adjust the top position as needed
+                  top: 50.0, // Adjust the top position as needed
                   left: 16.0,
                   right: 16.0,
                   child: SearchComponent(
