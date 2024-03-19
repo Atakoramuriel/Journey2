@@ -18,7 +18,6 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'location_service.dart';
 import 'autocomplete_prediction.dart';
 
-
 class SearchComponent extends StatefulWidget {
   final Function(String, String) onSearchSubmit;
 
