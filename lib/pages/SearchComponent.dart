@@ -18,14 +18,18 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'location_service.dart';
 import 'autocomplete_prediction.dart';
 
+
 class SearchComponent extends StatefulWidget {
   final Function(String, String) onSearchSubmit;
 
-  const SearchComponent({Key? key, required this.onSearchSubmit}) : super(key: key);
 
-  @override
-  _SearchComponentState createState() => _SearchComponentState();
+ const SearchComponent({Key? key, required this.onSearchSubmit}) : super(key: key);
+
+
+ @override
+ _SearchComponentState createState() => _SearchComponentState();
 }
+
 
 class _SearchComponentState extends State<SearchComponent> {
   final TextEditingController _controller = TextEditingController();

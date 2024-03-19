@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:journey2/constants.dart';
+import 'package:journey2/pages/NewRideAlong.dart';
+import 'package:journey2/pages/newRide.dart';
 import 'package:location/location.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -683,7 +685,7 @@ class _MapViewState extends State<MapView> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: ui.Color.fromARGB(255, 50, 40, 87),
+                        color: ui.Color.fromARGB(255, 65, 19, 229),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Padding(
@@ -704,35 +706,51 @@ class _MapViewState extends State<MapView> {
                                   width: 8.0,
                                 ),
                                 Text(
-                                  "New Ride Along",
+                                  "Create New Ride Along?",
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 25,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                             SizedBox(
-                              height: 5,
+                              height: 25,
                             ),
                             Row(
                               children: [
                                 Spacer(),
                                 ElevatedButton(
-                                  child: Text("Enter Details"),
+                                  child: Text(
+                                    "Create",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.indigo[700],
+                                    backgroundColor: const ui.Color.fromARGB(
+                                        255, 59, 81, 222),
                                     elevation: 0,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return const NewRideAlong();
+                                        },
+                                      ),
+                                    );
+                                  },
                                 ),
                                 SizedBox(
-                                  width: 5,
+                                  width: 10,
                                 ),
                                 ElevatedButton(
-                                  child: Text("Cancel"),
+                                  child: Text(
+                                    "Cancel",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: ui.Color.fromARGB(255, 68, 10, 15),
+                                    backgroundColor: ui.Color.fromARGB(255, 216, 32, 47),
                                     elevation: 0,
                                   ),
                                   onPressed: () {
