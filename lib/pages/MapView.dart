@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:journey2/constants.dart';
+import 'package:journey2/pages/NewRideAlong.dart';
+import 'package:journey2/pages/newRide.dart';
 import 'package:location/location.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +15,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'SearchComponent.dart';
+
 
 class MapView extends StatefulWidget {
   
@@ -369,7 +373,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Add Friend"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -470,7 +474,7 @@ class _MapViewState extends State<MapView> {
                                 ElevatedButton(
                                   child: Text("Join Ride Along"),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: Colors.indigo[700],
                                     elevation: 0,
                                   ),
                                   onPressed: () {},
@@ -672,7 +676,7 @@ class _MapViewState extends State<MapView> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: ui.Color.fromARGB(255, 50, 40, 87),
+                        color: ui.Color.fromARGB(255, 65, 19, 229),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Padding(
@@ -693,35 +697,51 @@ class _MapViewState extends State<MapView> {
                                   width: 8.0,
                                 ),
                                 Text(
-                                  "New Ride Along",
+                                  "Create New Ride Along?",
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 25,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                             SizedBox(
-                              height: 5,
+                              height: 25,
                             ),
                             Row(
                               children: [
                                 Spacer(),
                                 ElevatedButton(
-                                  child: Text("Enter Details"),
+                                  child: Text(
+                                    "Create",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    primary: Colors.indigo[700],
+                                    backgroundColor: const ui.Color.fromARGB(
+                                        255, 59, 81, 222),
                                     elevation: 0,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return const NewRideAlong();
+                                        },
+                                      ),
+                                    );
+                                  },
                                 ),
                                 SizedBox(
-                                  width: 5,
+                                  width: 10,
                                 ),
                                 ElevatedButton(
-                                  child: Text("Cancel"),
+                                  child: Text(
+                                    "Cancel",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    primary: ui.Color.fromARGB(255, 68, 10, 15),
+                                    backgroundColor: ui.Color.fromARGB(255, 216, 32, 47),
                                     elevation: 0,
                                   ),
                                   onPressed: () {
@@ -768,13 +788,14 @@ class _MapViewState extends State<MapView> {
 
   
 	@override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (currentPosition != null) ...[
-            Stack(children: [
+Widget build(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
+  return Scaffold(
+    body: Stack(
+      children: [
+        if (currentPosition != null) ...[
+          Stack(
+            children: [
               GoogleMap(
                 onLongPress: (position) {
                   //Create New Marker @ Location
@@ -816,29 +837,45 @@ class _MapViewState extends State<MapView> {
                 width: size.width * 0.85,
                 offset: 0,
               ),
-            ])
-          ] else ...[
-            const Center(
-              child: CircularProgressIndicator(),
-            )
-          ]
-          
-
-          // Add other widgets that you might need on your map screen
+              Positioned(
+                top: 16.0, // Adjust the top position as needed
+                left: 16.0,
+                right: 16.0,
+                child: SearchComponent(
+                  onSearchSubmit: (query) {
+                    // Handle the search query here
+                    print('Search query: $query');
+                  },
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
         ],
-      ),
-      floatingActionButton: Padding(
-  padding: const EdgeInsets.only(bottom: 60.0), // Adjust the value as needed
-  child: Align(
-    alignment: Alignment.bottomRight,
-    child: FloatingActionButton(
-      onPressed: _toggleMapStyle,
-      tooltip: 'Toggle Map Mode',
-      child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+      ],
     ),
+<<<<<<< HEAD
   ),
 ), 
 
     );
   }
+=======
+    floatingActionButton: Padding(
+      padding: const EdgeInsets.only(bottom: 60.0),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: FloatingActionButton(
+          onPressed: _toggleMapStyle,
+          tooltip: 'Toggle Map Mode',
+          child: Icon(_isNightMode ? Icons.wb_sunny : Icons.nightlight_round),
+        ),
+      ),
+    ),
+  );
+>>>>>>> origin/DEV
+}
 }
