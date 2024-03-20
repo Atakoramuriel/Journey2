@@ -53,12 +53,24 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
       25; // meters, threshold for significant movement
 
   @override
-  void initState() {
-    super.initState();
-    _initializeLocation();
-    getMarkerData();
-    WidgetsBinding.instance.addObserver(this);
-  }
+void initState() {
+  super.initState();
+  _initializeLocation();
+  getMarkerData();
+  WidgetsBinding.instance.addObserver(this);
+  createRideAlongDocument();
+
+  // Test marker
+  final testMarker = Marker(
+    markerId: MarkerId('test'),
+    position: LatLng(39.02595, -77.420963),
+    icon: BitmapDescriptor.defaultMarker,
+  );
+
+  setState(() {
+    markers.add(testMarker);
+  });
+}
 
   void _toggleMapStyle() async {
     if (_isNightMode) {
@@ -233,30 +245,182 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
     });
   }
 
-  void getMarkerData() {
-    _markerSubscription = FirebaseFirestore.instance
-        .collection('Markers')
-        .where('isOnline', isEqualTo: true) // Filter markers based on isOnline field
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      Set<Marker> tempMarkers = {};
+  Future<Marker?> initRideAlongMarker(DocumentSnapshot doc) async {
+  print('Ride Along Document Data: ${doc.data()}');
 
-      for (var doc in snapshot.docs) {
-        initMarker(doc).then((marker) {
-          if (marker != null) {
-            tempMarkers.add(marker);
-          } else {
-            print("Err Marker is Null on initMarker Function");
-          }
-        });
-      }
+  try {
+    final markerId = MarkerId(doc.id);
+    final coordinates = doc['coordinates'] as Map<String, dynamic>;
+    final latitude = coordinates['latitude'] as double;
+    final longitude = coordinates['longitude'] as double;
+    final title = doc['title'] as String;
+    final description = doc['description'] as String;
+    final destination = doc['destination'] as String;
+    final owner = doc['owner'] as String;
+    final dateTime = doc['dateTime'] as Timestamp?;
 
-      setState(() {
-        markers = tempMarkers;
-      });
-    });
+    print('Latitude: $latitude, Longitude: $longitude');
+
+    return Marker(
+      markerId: markerId,
+      position: LatLng(latitude, longitude),
+      icon: BitmapDescriptor.defaultMarker,
+      onTap: () {
+        _customInfoRideAlongController.addInfoWindow!(
+          Column(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Text(description),
+                        SizedBox(height: 5),
+                        Text('Destination: $destination'),
+                        SizedBox(height: 5),
+                        Text('Owner: $owner'),
+                        SizedBox(height: 5),
+                        Text('Date/Time: ${dateTime?.toDate() ?? 'N/A'}'),
+                      ],
+                    ),
+                  ),
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
+            ],
+          ),
+          LatLng(latitude, longitude),
+        );
+      },
+    );
+  } catch (e) {
+    print("Error initializing ride along marker: $e");
+    return null;
   }
+}
 
+  void getMarkerData() {
+  _markerSubscription = FirebaseFirestore.instance
+      .collection('Markers')
+      .where('isOnline', isEqualTo: true)
+      .snapshots()
+      .listen((QuerySnapshot snapshot) {
+    Set<Marker> tempMarkers = {};
+
+    for (var doc in snapshot.docs) {
+      initMarker(doc).then((marker) {
+        if (marker != null) {
+          tempMarkers.add(marker);
+        } else {
+          print("Err Marker is Null on initMarker Function");
+        }
+      });
+    }
+
+    setState(() {
+      markers = tempMarkers;
+    });
+  });
+
+  FirebaseFirestore.instance
+      .collection('RideAlongs')
+      .snapshots()
+      .listen((QuerySnapshot snapshot) {
+    Set<Marker> tempRideAlongMarkers = {};
+
+    for (var doc in snapshot.docs) {
+      final coordinates = doc['coordinates'] as Map<String, dynamic>;
+      final latitude = coordinates['latitude'] as double;
+      final longitude = coordinates['longitude'] as double;
+      final title = doc['title'] as String;
+      final description = doc['description'] as String;
+      final destination = doc['destination'] as String;
+      final ownerId = doc['owner'] as String;
+      final dateTime = doc['dateTime'] as Timestamp;
+
+      // Fetch the owner's username from the Riders collection
+      FirebaseFirestore.instance
+          .collection('Riders')
+          .doc(ownerId)
+          .get()
+          .then((ownerDoc) {
+        final ownerUsername = ownerDoc['userName'] as String;
+
+        final marker = Marker(
+          markerId: MarkerId(doc.id),
+          position: LatLng(latitude, longitude),
+          icon: BitmapDescriptor.defaultMarker,
+          onTap: () {
+            _customInfoRideAlongController.addInfoWindow!(
+              Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            Text(description),
+                            SizedBox(height: 5),
+                            Text('Destination: $destination'),
+                            SizedBox(height: 5),
+                            Text('Owner: $ownerUsername'),
+                            SizedBox(height: 5),
+                            Text('Date/Time: ${dateTime.toDate()}'),
+                          ],
+                        ),
+                      ),
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ],
+              ),
+              LatLng(latitude, longitude),
+            );
+          },
+        );
+
+        tempRideAlongMarkers.add(marker);
+
+        print('Ride Along Markers: $tempRideAlongMarkers');
+
+        setState(() {
+          markers.addAll(tempRideAlongMarkers);
+          print('Updated markers: $markers');
+        });
+      });
+    }
+  });
+}
   void _initializeLocation() async {
     final Location location = Location();
     bool serviceEnabled;
@@ -533,10 +697,28 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
   _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
 }
 
+Future<void> createRideAlongDocument() async {
+    try {
+      final rideAlongData = {
+        'coordinates': {
+          'latitude': 38.9523,
+          'longitude': -77.4586,
+        },
+        'title': 'First Ride',
+        'description': 'Join us to go shopping at tysons!',
+        'destination': 'Tysons Center Mall',
+        'owner': 'EuVCs4QdpVhJKnFXrYFIS3SzNjH3',
+        'dateTime': Timestamp.fromDate(DateTime(2024, 6, 10, 9, 0)), // Adjust the date and time as needed
+        'timestamp': FieldValue.serverTimestamp(),
+      };
 
+      await FirebaseFirestore.instance.collection('RideAlongs').add(rideAlongData);
 
-  
-
+      print('Ride along document created successfully.');
+    } catch (e) {
+      print('Error creating ride along document: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -669,204 +851,204 @@ class _MapViewState extends State<MapView> with WidgetsBindingObserver, TickerPr
 }
 
   Future<Marker?> initMarker(DocumentSnapshot doc) async {
-    try {
-      final markerId = MarkerId(doc.id);
-      final coordinates = doc['coordinates'] as Map<String, dynamic>;
-      final latitude = coordinates['latitude'] as double;
-      final longitude = coordinates['longitude'] as double;
-      final userId = doc['userId'] as String;
+  try {
+    final markerId = MarkerId(doc.id);
+    final coordinates = doc['coordinates'] as Map<String, dynamic>;
+    final latitude = coordinates['latitude'] as double;
+    final longitude = coordinates['longitude'] as double;
+    final userId = doc['userId'] as String;
 
-      final DocumentSnapshot riderDoc = await FirebaseFirestore.instance
-          .collection('Riders')
-          .doc(userId)
-          .get();
+    final DocumentSnapshot riderDoc = await FirebaseFirestore.instance
+        .collection('Riders')
+        .doc(userId)
+        .get();
 
-      final profileImageUrl = riderDoc['profileImg'] as String;
-      final riderUsername = riderDoc['userName'] as String;
-      final riderBio = riderDoc['Bio'] as String;
-      final riderLastTime = doc['timestamp'].toDate().toString();
-      final markerType = doc['Type'] as String;
-      final isOnline = doc['isOnline'] as bool;
+    final profileImageUrl = riderDoc['profileImg'] as String;
+    final riderUsername = riderDoc['userName'] as String;
+    final riderBio = riderDoc['Bio'] as String;
+    final riderLastTime = doc['timestamp']?.toDate()?.toString() ?? 'N/A';
+    final markerType = doc['Type'] as String;
+    final isOnline = doc['isOnline'] as bool;
 
-      final BitmapDescriptor markerIcon = await createMarkerIcon(profileImageUrl, isOnline);
+    final BitmapDescriptor markerIcon = await createMarkerIcon(profileImageUrl, isOnline);
 
-      return Marker(
-        markerId: markerId,
-        position: LatLng(latitude, longitude),
-        icon: markerIcon,
-        onTap: () {
-          if (markerType == "Rider") {
-            _customInfoWindowController.addInfoWindow!(
-              Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ui.Color.fromARGB(255, 26, 123, 202),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(1.0),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(width: 5),
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: NetworkImage(profileImageUrl),
-                                ),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  riderUsername,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                Text(
-                                  riderBio,
-                                  style: TextStyle(color: Colors.white, fontSize: 15),
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                Text(
-                                  "Last here " + riderLastTime,
-                                  style: TextStyle(color: Colors.white, fontSize: 15),
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                ElevatedButton(
-                                  child: Text("Add Friend"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.indigo[700],
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      width: double.infinity,
-                      height: double.infinity,
+    return Marker(
+      markerId: markerId,
+      position: LatLng(latitude, longitude),
+      icon: markerIcon,
+      onTap: () {
+        if (markerType == "Rider") {
+          _customInfoWindowController.addInfoWindow!(
+            Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: ui.Color.fromARGB(255, 26, 123, 202),
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                  ),
-                ],
-              ),
-              LatLng(latitude, longitude),
-            );
-          } else if (markerType == "RideAlong") {
-            _customInfoRideAlongController.addInfoWindow!(
-              Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ui.Color.fromARGB(255, 100, 15, 28),
-                        borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(width: 5),
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundImage: NetworkImage(profileImageUrl),
+                              ),
+                              SizedBox(width: 8.0),
+                              Text(
+                                riderUsername,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Spacer(),
+                              Text(
+                                riderBio,
+                                style: TextStyle(color: Colors.white, fontSize: 15),
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Spacer(),
+                              Text(
+                                "Last here " + riderLastTime,
+                                style: TextStyle(color: Colors.white, fontSize: 15),
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Spacer(),
+                              ElevatedButton(
+                                child: Text("Add Friend"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo[700],
+                                  elevation: 0,
+                                ),
+                                onPressed: () {},
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                        ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(1.0),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(width: 5),
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: NetworkImage(profileImageUrl),
-                                ),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  riderUsername,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                Text(
-                                  riderBio,
-                                  style: TextStyle(color: Colors.white, fontSize: 15),
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                Text(
-                                  "Start Time " + riderLastTime,
-                                  style: TextStyle(color: Colors.white, fontSize: 15),
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                ElevatedButton(
-                                  child: Text("Join Ride Along"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.indigo[700],
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      width: double.infinity,
-                      height: double.infinity,
                     ),
+                    width: double.infinity,
+                    height: double.infinity,
                   ),
-                ],
-              ),
-              LatLng(latitude, longitude),
-            );
-          }
-        },
-      );
-    } catch (e) {
-      print("Error initializing marker: $e");
-      return null;
-    }
+                ),
+              ],
+            ),
+            LatLng(latitude, longitude),
+          );
+        } else if (markerType == "RideAlong") {
+          _customInfoRideAlongController.addInfoWindow!(
+            Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: ui.Color.fromARGB(255, 100, 15, 28),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(width: 5),
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundImage: NetworkImage(profileImageUrl),
+                              ),
+                              SizedBox(width: 8.0),
+                              Text(
+                                riderUsername,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Spacer(),
+                              Text(
+                                riderBio,
+                                style: TextStyle(color: Colors.white, fontSize: 15),
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Spacer(),
+                              Text(
+                                "Start Time " + riderLastTime,
+                                style: TextStyle(color: Colors.white, fontSize: 15),
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Spacer(),
+                              ElevatedButton(
+                                child: Text("Join Ride Along"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo[700],
+                                  elevation: 0,
+                                ),
+                                onPressed: () {},
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+                ),
+              ],
+            ),
+            LatLng(latitude, longitude),
+          );
+        }
+      },
+    );
+  } catch (e) {
+    print("Error initializing marker: $e");
+    return null;
   }
+}
 
  @override
 Widget build(BuildContext context) {
@@ -920,7 +1102,7 @@ Widget build(BuildContext context) {
                 offset: 0,
               ),
               Positioned(
-                top: 10.0,
+                top: 50.0,
                 left: 16.0,
                 right: 16.0,
                 child: SearchComponent(
