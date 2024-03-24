@@ -5,7 +5,6 @@ import 'package:journey2/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:journey2/pages/settings_screen.dart';
 
-
 class Rider {
   String username;
   String profileImage;
@@ -1323,27 +1322,20 @@ class _ProfileViewState extends State<ProfileView>
                                   ),
                                 ),
                                 const Spacer(),
-                                PopupMenuButton<String>(
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SettingsScreen()),
+                                    );
+                                  },
                                   icon: const Icon(
                                     Icons.more_vert,
                                     color: Colors.white,
                                   ),
-                                  onSelected: (value) {
-                                    if (value == 'Settings'){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
-
-                                      );
-                                    }
-                                  },
-                                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                                    const PopupMenuItem<String>(
-                                      value: 'Settings',
-                                      child: Text('Settings'),
-                                    ),
-                                  ], 
-                                ),
+                                )
                               ]),
                             ),
 

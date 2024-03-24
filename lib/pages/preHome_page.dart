@@ -3,6 +3,7 @@ import 'package:journey2/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:journey2/pages/AccountSetup.dart';
 import 'package:journey2/pages/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Prep Code
 class User {
@@ -13,18 +14,30 @@ class User {
 
 Future getUser(userKey) async {
   Map<String, dynamic>? user;
+  final userPrefs = await SharedPreferences.getInstance();
   await FirebaseFirestore.instance
       .collection("Riders")
       .doc(userKey)
       .get()
-      .then((doc) {
+      .then((doc) async {
     if (doc.exists) {
-      print("USER EXISTS");
+      // print("USER EXISTS");
       user = doc.data();
     } else {
       return null;
     }
-  }).whenComplete(() {});
+  }).whenComplete(() {
+    if (user != null) {
+      print(" \n \n \n \n \n");
+      print("USER DATA : " + user!.toString());
+      userPrefs.setString("profileImg", user!['profileImg'].toString());
+      userPrefs.setString("username", user!['userName'].toString());
+      userPrefs.setStringList("UserData", ['profileImg', user.toString()]);
+      print(" \n \n \n \n \n");
+      print("USER PREF TEST ");
+      print(userPrefs.getString("profileImg"));
+    }
+  });
   // print("UserVal" + user);
   return user;
 }
