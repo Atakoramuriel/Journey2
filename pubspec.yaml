@@ -46,6 +46,7 @@ dependencies:
   flutter_polyline_points: ^1.0.0
   http: ^0.13.4
   ionicons: ^0.2.1
+  image_card: ^0.0.4
 
 
 
@@ -75,7 +76,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/
+    - assets/images/
     - assets/images/TempLogo.PNG
     - assets/images/GLogo.png
     - assets/images/AzerPromo.png
