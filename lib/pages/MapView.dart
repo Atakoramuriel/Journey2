@@ -3,11 +3,10 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:journey2/Classes/PointData.dart';
 import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
 import 'package:journey2/pages/NewRideAlong.dart';
@@ -20,11 +19,13 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:convert';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:path_provider/path_provider.dart';
 import 'SearchComponent.dart';
 import 'location_service.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_card/image_card.dart';
+import 'package:file_picker/file_picker.dart';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -80,6 +81,45 @@ class _MapViewState extends State<MapView>
 
   var errorMsg = "";
   //Push Data to Firebase
+
+  File? _image;
+  File? selectedGalleryImg;
+  bool selectedFile = false;
+
+  Future _getImage() async {
+    print("_getImage Called ");
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    final imageTemp = File(image.path);
+
+    print("Image collected : " + imageTemp.toString());
+
+    setState(() {
+      _image = imageTemp;
+      selectedGalleryImg = _image;
+      selectedFile = true;
+      print("\n\n\n\n\n\n");
+      print("Setting stage of image ${imageTemp}");
+      print("Setting stage of image ${_image}");
+      print("Setting stage of image ${selectedGalleryImg}");
+      print("\n\n\n\n\n\n");
+      // assignProfilePhoto();
+    });
+  }
+
+//Start
+
+  Future<File> getImageFileFromAssets(String path) async {
+    final byteData = await rootBundle.load(path);
+
+    final file = File('${(await getTemporaryDirectory()).path}/$path');
+    await file.create(recursive: true);
+    await file.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return file;
+  }
 
   @override
   void initState() {
@@ -166,9 +206,21 @@ class _MapViewState extends State<MapView>
     );
     if (picked != null) {
       setState(() {
-        _newStartTime.text = picked.toString();
+        _newStartTime.text = "" +
+            picked.hour.toString().padLeft(2, '0') +
+            ":" +
+            picked.minute.toString().padLeft(2, '0') +
+            picked.period.toString().split('.')[1];
       });
-      print({picked.hour.toString() + ':' + picked.minute.toString()});
+      print("\n\n\n\n\n");
+      // String formattedTime = '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
+      print({
+        picked.hour.toString() +
+            ':' +
+            picked.minute.toString() +
+            "${picked.period.toString().split('.')[1]}"
+      });
+      print("\n\n\n\n\n");
     }
   }
 
@@ -311,7 +363,7 @@ class _MapViewState extends State<MapView>
     });
   }
 
-  void getMarkerData() {
+  void getMarkerDataOld() {
     _markerSubscription = FirebaseFirestore.instance
         .collection('Markers')
         .where('isOnline',
@@ -321,6 +373,9 @@ class _MapViewState extends State<MapView>
       Set<Marker> tempMarkers = {};
 
       for (var doc in snapshot.docs) {
+        print("\n\n\n\n\n");
+        print("DATA: " + doc.data().toString());
+        print("\n\n\n\n\n");
         initMarker(doc).then((marker) {
           if (marker != null) {
             tempMarkers.add(marker);
@@ -328,6 +383,45 @@ class _MapViewState extends State<MapView>
             print("Err Marker is Null on initMarker Function");
           }
         });
+      }
+
+      setState(() {
+        markers = tempMarkers;
+      });
+    });
+  }
+
+  void getMarkerData() {
+    _markerSubscription = FirebaseFirestore.instance
+        .collection('Markers')
+        // Filter markers based on isOnline field
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      Set<Marker> tempMarkers = {};
+
+      for (var doc in snapshot.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+
+        // print("\n\n\n\n");
+        // print("DD: " + data['Type']);
+        // print("\n\n\n\n");
+        if (data['Type'] == "Rider") {
+          initMarker(doc).then((marker) {
+            if (marker != null) {
+              tempMarkers.add(marker);
+            } else {
+              print("Err Marker is Null on initMarker Function");
+            }
+          });
+        } else if (data['Type'] == "RideAlong") {
+          initRAMarker(doc).then((marker) {
+            if (marker != null) {
+              tempMarkers.add(marker);
+            } else {
+              print("Err Marker is Null on initRAMarker Function");
+            }
+          });
+        }
       }
 
       setState(() {
@@ -507,7 +601,7 @@ class _MapViewState extends State<MapView>
                                   width: 8.0,
                                 ),
                                 Text(
-                                  "New Ride Along ? ",
+                                  "Create New Ride Along ?",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -523,7 +617,7 @@ class _MapViewState extends State<MapView>
                                 Spacer(),
                                 ElevatedButton(
                                   child: Text(
-                                    "Create",
+                                    "Yes",
                                     style: TextStyle(fontSize: 20),
                                   ),
                                   style: ElevatedButton.styleFrom(
@@ -532,288 +626,20 @@ class _MapViewState extends State<MapView>
                                     elevation: 0,
                                   ),
                                   onPressed: () {
-                                    showGeneralDialog(
-                                      context: context,
-                                      barrierColor: Colors.black12
-                                          .withOpacity(0.6), // Background color
-                                      barrierDismissible: false,
-                                      barrierLabel: 'Dialog',
-                                      transitionDuration:
-                                          Duration(milliseconds: 400),
-                                      pageBuilder: (context, __, ___) {
-                                        return Scaffold(
-                                          body: Stack(
-                                            children: [
-                                              Container(
-                                                color: kNightCard,
-                                                height: size.height,
-                                                width: size.width,
-                                                child: SingleChildScrollView(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      SizedBox(
-                                                        height: size.height * 0,
-                                                      ),
-                                                      Stack(
-                                                        children: [
-                                                          GestureDetector(
-                                                            child:
-                                                                FillImageCard(
-                                                              color: Colors
-                                                                  .transparent,
-                                                              width: size.width,
-                                                              heightImage:
-                                                                  size.height *
-                                                                      0.3,
-                                                              imageProvider:
-                                                                  const AssetImage(
-                                                                      'assets/images/A9.png'),
-                                                              title: Text(
-                                                                  _newNameController
-                                                                      .text),
-                                                              description: Text(
-                                                                  _newDescription
-                                                                      .text),
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                size.height *
-                                                                    0.19,
-                                                            width: size.width,
-                                                            child: Column(
-                                                                children: [
-                                                                  const Spacer(),
-                                                                  Row(
-                                                                    children: [
-                                                                      const Spacer(),
-                                                                      Text(
-                                                                        "Tap to Add Cover Img",
-                                                                        style: TextStyle(
-                                                                            fontSize: size.width *
-                                                                                0.1,
-                                                                            color: ui.Color.fromARGB(
-                                                                                255,
-                                                                                203,
-                                                                                229,
-                                                                                254),
-                                                                            fontWeight:
-                                                                                FontWeight.bold),
-                                                                      ),
-                                                                      const Spacer()
-                                                                    ],
-                                                                  )
-                                                                ]),
-                                                          )
-                                                        ],
-                                                      ),
-                                                      Text(
-                                                        "Create New Ride Along",
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize:
-                                                              size.width * 0.07,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                            size.height * 0.05,
-                                                      ),
-                                                      Container(
-                                                        width:
-                                                            size.width * 0.90,
-                                                        child: _entryField(
-                                                            "Title. . .",
-                                                            _newNameController),
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                            size.height * 0.05,
-                                                      ),
-                                                      Container(
-                                                        width: size.width * 0.9,
-                                                        child: TextField(
-                                                            style:
-                                                                const TextStyle(
-                                                                    color: Colors
-                                                                        .white),
-                                                            controller:
-                                                                _newDescription,
-                                                            keyboardType:
-                                                                TextInputType
-                                                                    .multiline,
-                                                            minLines:
-                                                                5, // Normal textInputField will be displayed
-                                                            maxLines: 5,
-                                                            decoration:
-                                                                const InputDecoration(
-                                                                    filled:
-                                                                        true,
-                                                                    fillColor: Color
-                                                                        .fromARGB(
-                                                                            132,
-                                                                            37,
-                                                                            32,
-                                                                            32),
-                                                                    hintText:
-                                                                        "Description. . .",
-                                                                    hintStyle: TextStyle(
-                                                                        color: Colors
-                                                                            .white),
-                                                                    enabledBorder:
-                                                                        UnderlineInputBorder(
-                                                                      borderSide:
-                                                                          BorderSide(
-                                                                              color: Colors.white),
-                                                                    )) // When user presses enter it will adapt to it
-                                                            ),
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                            size.height * 0.05,
-                                                      ),
-                                                      Container(
-                                                        height:
-                                                            size.height * 0.05,
-                                                        width: size.width * 0.8,
-                                                        child: Row(
-                                                          children: [
-                                                            IconButton(
-                                                              onPressed: () {
-                                                                _selectDate(
-                                                                    context);
-                                                              },
-                                                              icon: Icon(Icons
-                                                                  .date_range),
-                                                              color:
-                                                                  Colors.white,
-                                                              iconSize: 25,
-                                                            ),
-                                                            SizedBox(
-                                                              width: 5,
-                                                            ),
-                                                            if (_newStartDate
-                                                                    .text ==
-                                                                "") ...[
-                                                              Text(
-                                                                "Select Date. . .",
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        size.width *
-                                                                            0.05,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              )
-                                                            ] else ...[
-                                                              GestureDetector(
-                                                                  onTap: () {
-                                                                    _selectDate(
-                                                                        context);
-                                                                  },
-                                                                  child: Text(
-                                                                    "Schedule For : " +
-                                                                        _newStartDate
-                                                                            .text,
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            size.width *
-                                                                                0.05,
-                                                                        fontWeight:
-                                                                            FontWeight.bold),
-                                                                  ))
-                                                            ]
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                            size.height * 0.05,
-                                                      ),
-                                                      Container(
-                                                        height:
-                                                            size.height * 0.05,
-                                                        width: size.width * 0.8,
-                                                        child: Row(
-                                                          children: [
-                                                            IconButton(
-                                                              onPressed: () {
-                                                                _selectTime(
-                                                                    context);
-                                                              },
-                                                              icon: Icon(Icons
-                                                                  .date_range),
-                                                              color:
-                                                                  Colors.white,
-                                                              iconSize: 25,
-                                                            ),
-                                                            SizedBox(
-                                                              width: 5,
-                                                            ),
-                                                            if (_newStartTime
-                                                                    .text ==
-                                                                "") ...[
-                                                              Text(
-                                                                "Select Time. . .",
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        size.width *
-                                                                            0.05,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              )
-                                                            ] else ...[
-                                                              GestureDetector(
-                                                                  onTap: () {
-                                                                    _selectTime(
-                                                                        context);
-                                                                  },
-                                                                  child: Text(
-                                                                    "Starting @ : " +
-                                                                        _newStartTime
-                                                                            .text,
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontSize:
-                                                                            size.width *
-                                                                                0.05,
-                                                                        fontWeight:
-                                                                            FontWeight.bold),
-                                                                  ))
-                                                            ]
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      },
+                                    var endPoint = pointData(
+                                        point: point,
+                                        pointLat: point.latitude,
+                                        pointLong: point.longitude);
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return NewRideAlong(
+                                              srcPoint: endPoint);
+                                        },
+                                      ),
                                     );
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) {
-                                    //       return const NewRideAlong();
-                                    //     },
-                                    //   ),
-                                    // );
                                   },
                                 ),
                                 SizedBox(
@@ -862,6 +688,8 @@ class _MapViewState extends State<MapView>
   }
 
   void _handleSearchSubmit(String placeId, String description) async {
+    print("PlaceID: " + placeId);
+    print("Desc: ${description}");
     // Retrieve place details using the place ID
     var place = await LocationService().getPlace(placeId);
 
@@ -1035,7 +863,118 @@ class _MapViewState extends State<MapView>
       animationController.forward();
       await Future.delayed(const Duration(milliseconds: 500));
       animationController.dispose();
+    } else {
+      paint.style = PaintingStyle.stroke;
+      paint.strokeWidth = borderWidth;
+      paint.strokeCap = StrokeCap.round;
+
+      final double radius = imageSize / 2;
+      final Offset center = Offset(canvasSize / 2, canvasSize / 2);
+
+      final AnimationController animationController = AnimationController(
+        duration: const Duration(milliseconds: 500),
+        vsync: this,
+      )..repeat(reverse: true);
+
+      final borderAnimation = ColorTween(
+        begin: ui.Color.fromARGB(255, 0, 128, 255),
+        end: ui.Color.fromARGB(255, 0, 177, 247),
+      ).animate(
+        CurvedAnimation(
+          parent: animationController,
+          curve: Curves.easeInOut,
+        ),
+      );
+
+      final borderPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = borderWidth
+        ..strokeCap = StrokeCap.round;
+
+      animationController.addListener(() {
+        canvas.drawCircle(
+          center,
+          radius,
+          borderPaint..color = borderAnimation.value ?? Colors.green,
+        );
+      });
+
+      animationController.forward();
+      await Future.delayed(const Duration(milliseconds: 500));
+      animationController.dispose();
     }
+
+    final ui.Picture picture = pictureRecorder.endRecording();
+    final ui.Image markerAsImage = await picture.toImage(
+      canvasSize.toInt(),
+      canvasSize.toInt(),
+    );
+    final ByteData? byteData =
+        await markerAsImage.toByteData(format: ui.ImageByteFormat.png);
+
+    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
+  }
+
+  Future<BitmapDescriptor> createRAMarkerIcon(String coverImg) async {
+    final Uint8List markerImageBytes = await getMarker(coverImg);
+    final ui.Codec codec = await ui.instantiateImageCodec(markerImageBytes);
+    final ui.FrameInfo fi = await codec.getNextFrame();
+    final ui.Image image = fi.image;
+
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+    final Paint paint = Paint();
+
+    final double borderWidth = 4;
+    final double imageSize = image.width.toDouble();
+    final double canvasSize = imageSize + (2 * borderWidth);
+
+    canvas.drawImage(
+      image,
+      Offset(borderWidth, borderWidth),
+      paint,
+    );
+
+    paint.style = PaintingStyle.stroke;
+    paint.strokeWidth = borderWidth;
+    paint.strokeCap = StrokeCap.round;
+
+    final double radius = imageSize;
+    final Offset center = Offset(canvasSize / 2, canvasSize / 2);
+
+    final AnimationController animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    final borderAnimation = ColorTween(
+      begin: const ui.Color.fromARGB(255, 74, 135, 195),
+      end: ui.Color.fromARGB(255, 0, 94, 255),
+    ).animate(
+      CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    final borderPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = borderWidth
+      ..strokeCap = StrokeCap.round;
+
+    animationController.addListener(() {
+      canvas.drawCircle(
+        center,
+        radius,
+        borderPaint
+          ..color =
+              borderAnimation.value ?? ui.Color.fromARGB(255, 0, 145, 255),
+      );
+    });
+
+    animationController.forward();
+    await Future.delayed(const Duration(milliseconds: 200));
+    animationController.dispose();
 
     final ui.Picture picture = pictureRecorder.endRecording();
     final ui.Image markerAsImage = await picture.toImage(
@@ -1055,6 +994,7 @@ class _MapViewState extends State<MapView>
       final latitude = coordinates['latitude'] as double;
       final longitude = coordinates['longitude'] as double;
       final userId = doc['userId'] as String;
+      // final coverImg = doc['coverImg'] as String;
 
       final DocumentSnapshot riderDoc = await FirebaseFirestore.instance
           .collection('Riders')
@@ -1069,8 +1009,12 @@ class _MapViewState extends State<MapView>
       final markerType = doc['Type'] as String;
       final isOnline = doc['isOnline'] as bool;
 
-      final BitmapDescriptor markerIcon =
+      BitmapDescriptor markerIcon =
           await createMarkerIcon(profileImageUrl, isOnline);
+      if (markerType != "Rider") {
+        final title = doc['title'] as String;
+        markerIcon = await createRAMarkerIcon(doc['coverImg']);
+      }
 
       return Marker(
         markerId: markerId,
@@ -1221,88 +1165,105 @@ class _MapViewState extends State<MapView>
               ),
               LatLng(latitude, longitude),
             );
-          } else if (markerType == "RideAlong") {
+          }
+        },
+      );
+    } catch (e) {
+      print("Error initializing marker: $e");
+      return null;
+    }
+  }
+
+  Future<Marker?> initRAMarker(DocumentSnapshot doc) async {
+    // print("LAM ATTEMPTING INITRAMARKER");
+    try {
+      final markerId = MarkerId(doc.id);
+      final coordinates = doc['coordinates'] as Map<String, dynamic>;
+      final latitude = coordinates['latitude'] as double;
+      final longitude = coordinates['longitude'] as double;
+      final userId = doc['Host'] as String;
+      final coverImg = doc['coverImg'] as String;
+      final startDate = doc['startDate'] as String;
+      final startTime = doc['startTime'] as String;
+      final date = doc['date'] as String;
+      final title = doc['title'] as String;
+
+      final DocumentSnapshot riderDoc = await FirebaseFirestore.instance
+          .collection('Riders')
+          .doc(userId)
+          .get();
+
+      final profileImageUrl = riderDoc['profileImg'] as String;
+      final riderUsername = riderDoc['userName'] as String;
+      final riderKey = riderDoc['userKey'] as String;
+      final riderBio = riderDoc['Bio'] as String;
+      final markerType = doc['Type'] as String;
+      Size size = MediaQuery.of(context).size;
+
+      BitmapDescriptor markerIcon = await createRAMarkerIcon(
+          "https://obsidianrune.com/static/img/Ruimel.da20829.png");
+      if (markerType != "Rider") {
+        final title = doc['title'] as String;
+        markerIcon = await createRAMarkerIcon(
+            "https://obsidianrune.com/static/img/Ruimel.da20829.png");
+      }
+
+      return Marker(
+        markerId: markerId,
+        position: LatLng(latitude, longitude),
+        icon: markerIcon,
+        onTap: () {
+          if (markerType == "RideAlong") {
             _customInfoRideAlongController.addInfoWindow!(
-              Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ui.Color.fromARGB(255, 100, 15, 28),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(1.0),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(width: 5),
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage:
-                                      NetworkImage(profileImageUrl),
-                                ),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  riderUsername,
-                                  style: TextStyle(
+              Container(
+                height: 750,
+                width: double.maxFinite,
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  image: DecorationImage(
+                    image: NetworkImage(coverImg),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Card(
+                  color: Colors.transparent,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Spacer(),
+                        Container(
+                            color: const ui.Color.fromARGB(132, 0, 0, 0),
+                            width: size.width,
+                            child: Center(
+                              child: Text(
+                                title,
+                                style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                                    fontSize: size.width * 0.075),
+                              ),
+                            )),
+                        Container(
+                          color: const ui.Color.fromARGB(132, 0, 0, 0),
+                          child: Center(
+                            child: Text(
+                              "START TIME : " + date,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: size.width * 0.035),
                             ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                Text(
-                                  riderBio,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 15),
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                Text(
-                                  "Start Time " + riderLastTime,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 15),
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Spacer(),
-                                ElevatedButton(
-                                  child: Text("Join Ride Along"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.indigo[700],
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                Spacer(),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                      width: double.infinity,
-                      height: double.infinity,
+                        Spacer(),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
               LatLng(latitude, longitude),
             );
@@ -1368,7 +1329,7 @@ class _MapViewState extends State<MapView>
                   offset: 0,
                 ),
                 Positioned(
-                  top: 10.0,
+                  bottom: 10.0,
                   left: 16.0,
                   right: 16.0,
                   child: SearchComponent(

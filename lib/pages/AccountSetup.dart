@@ -1331,16 +1331,15 @@ class _AccountSetupState extends State<AccountSetup> {
       "profileImg": selectedImg,
       "Bio": _bioController.text,
     }).whenComplete(() => FirebaseFirestore.instance
-                  .collection("Riders")
-                  .doc(currentUser?.uid)
-                  .collection("Motorcycles")
-                  .add({
-                "Make": _motoMakeController.text,
-                "Model": _motoModelController.text,
-                "Year": _motoYearController.text,
-                "Color": _motoColorController.text
-              }).whenComplete(() => _profileComplete())
-            );
+                .collection("Riders")
+                .doc(currentUser?.uid)
+                .collection("Motorcycles")
+                .add({
+              "Make": _motoMakeController.text,
+              "Model": _motoModelController.text,
+              "Year": _motoYearController.text,
+              "Color": _motoColorController.text
+            }).whenComplete(() => _profileComplete()));
   }
 
   Widget _FinishButton() {
