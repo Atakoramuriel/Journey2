@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     } else {
       return Text(
-        errorMessage == '' ? '' : '${errorMessage}',
+        errorMessage == '' ? '' : '$errorMessage',
         style: GoogleFonts.abhayaLibre(
             color: Colors.red, fontWeight: FontWeight.bold, fontSize: 25),
       );
@@ -194,8 +194,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _bottomRow() {
-    return Row(
-      children: const <Widget>[
+    return const Row(
+      children: <Widget>[
         Spacer(),
         IconButton(
           onPressed: signInWithGoogle,
@@ -229,7 +229,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        body: Container(
+        body: SizedBox(
       height: size.height,
       width: size.width,
       child: Stack(

@@ -229,8 +229,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _bottomRow() {
-    return Row(
-      children: const <Widget>[
+    return const Row(
+      children: <Widget>[
         Spacer(),
         IconButton(
           onPressed: TheGoogleSign,

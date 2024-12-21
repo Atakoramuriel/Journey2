@@ -1,4 +1,4 @@
-package com.example.journey2
+package com.RA.journey2
 
 import io.flutter.embedding.android.FlutterActivity
 

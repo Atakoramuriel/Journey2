@@ -1,15 +1,14 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
-import 'package:journey2/pages/profile_nav.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:journey2/pages/settings_screen.dart';
 
 class Rider {
   String username;
-  String profileImage;
+  String profileImage = Auth().currentUser!.photoURL.toString();
   String bio;
   Rider(
       {required this.username, required this.profileImage, required this.bio});
@@ -55,9 +54,27 @@ class _ProfileViewState extends State<ProfileView>
   //Test Tab Controllers
   //TabController _tabController;
   final List<Tab> _tabs = <Tab>[
-    Tab(text: 'Posts'),
-    Tab(text: 'Garage'),
-    Tab(text: 'Rides'),
+    const Tab(
+      text: 'Posts',
+      icon: const Icon(
+        Icons.post_add,
+        color: Colors.white,
+      ),
+    ),
+    const Tab(
+      text: 'Garage',
+      icon: Icon(
+        Icons.motorcycle,
+        color: Colors.white,
+      ),
+    ),
+    const Tab(
+      text: 'Trips',
+      icon: Icon(
+        Icons.map,
+        color: Colors.white,
+      ),
+    ),
   ];
 
   //Animated Variables End
@@ -73,18 +90,21 @@ class _ProfileViewState extends State<ProfileView>
   late AnimationController animationController, ac2, ac3, ac4, ac5, ac6;
 
   late TabController _tab2Controller;
-  late ScrollController _scrollController;
   var userID = FirebaseAuth.instance.currentUser?.uid;
   var userEmail = FirebaseAuth.instance.currentUser?.email;
   var profileImg = FirebaseAuth.instance.currentUser!.photoURL;
-  var username = FirebaseAuth.instance.currentUser!.displayName;
+  var username = Auth().currentUser!.displayName as String;
+
+  var postCounts;
+  var friendsCount = "0";
+  var ridesCount = "0";
 
   //Quick Functions
 
   //Collection of Widgets
   Widget _StandardRider(size) {
     return Container(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       height: size.height,
       width: size.width,
       child: Stack(
@@ -101,7 +121,7 @@ class _ProfileViewState extends State<ProfileView>
                       child: Container(
                         height: size.height * 0.005,
                         width: size.width * 1.2,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.65),
                       )),
                 ],
               ),
@@ -119,7 +139,7 @@ class _ProfileViewState extends State<ProfileView>
                       child: Container(
                         height: size.height * 0.005,
                         width: size.width * 1.9,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.65),
                       )),
                 ],
               ),
@@ -137,7 +157,7 @@ class _ProfileViewState extends State<ProfileView>
                       child: Container(
                         height: size.height * 0.005,
                         width: size.width * 0.09,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.65),
                       )),
                 ],
               ),
@@ -174,7 +194,7 @@ class _ProfileViewState extends State<ProfileView>
                     child: Container(
                       height: size.height * 0.005,
                       width: size.width * 0.03,
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.65),
                     ),
                   ),
                 ],
@@ -193,7 +213,7 @@ class _ProfileViewState extends State<ProfileView>
                     child: Container(
                       height: size.height * 0.005,
                       width: size.width * 0.4,
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.65),
                     ),
                   ),
                 ],
@@ -207,7 +227,7 @@ class _ProfileViewState extends State<ProfileView>
 
   Widget _TravelerRider(size) {
     return Container(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       height: size.height,
       width: size.width,
       child: Stack(
@@ -329,7 +349,7 @@ class _ProfileViewState extends State<ProfileView>
 
   Widget _NightRider(size) {
     return Container(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       height: size.height,
       width: size.width,
       child: Stack(
@@ -451,7 +471,7 @@ class _ProfileViewState extends State<ProfileView>
 
   Widget _GhostRider(size) {
     return Container(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       height: size.height,
       width: size.width,
       child: Stack(
@@ -573,7 +593,7 @@ class _ProfileViewState extends State<ProfileView>
 
   Widget _SquibRider(size) {
     return Container(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       height: size.height,
       width: size.width,
       child: Stack(
@@ -701,14 +721,14 @@ class _ProfileViewState extends State<ProfileView>
         // TODO: Implement action for button press
       },
       child: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
             Icon(icon),
-            SizedBox(width: 16.0),
+            const SizedBox(width: 16.0),
             Text(text),
-            Spacer(),
-            Icon(Icons.arrow_forward_ios),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios),
           ],
         ),
       ),
@@ -730,14 +750,14 @@ class _ProfileViewState extends State<ProfileView>
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             final snapshotData = snapshot.data?.docs;
             if (snapshotData!.isEmpty) {
-              return Text("No Data",
+              return Text("No Rider Data...",
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: size.width * 0.08));
             } else {
               return ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: snapshotData.length,
                   itemBuilder: (context, index) {
                     // return Text(snapshotData[index]["Make"].toString());
@@ -748,23 +768,23 @@ class _ProfileViewState extends State<ProfileView>
                       child: Row(
                         children: [
                           Padding(
-                              padding: EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(3),
                               child: CircleAvatar(
                                 backgroundImage: NetworkImage(
-                                    snapshotData[index]['profileImg']),
+                                    Auth().currentUser!.photoURL as String),
                                 radius: size.width * 0.085,
                               )),
                           SizedBox(
                             width: size.width * 0.01,
                           ),
                           Text(
-                            snapshotData[index]["userName"],
+                            Auth().currentUser!.displayName as String,
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: size.width * 0.035),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           IconButton(
                               color: Colors.white,
                               onPressed: () {
@@ -773,7 +793,10 @@ class _ProfileViewState extends State<ProfileView>
                                       "Pressed More Options Button on Post By ${snapshotData[index]["userName"]}");
                                 });
                               },
-                              icon: Icon(Icons.more_horiz))
+                              icon: const Icon(
+                                Icons.more_horiz,
+                                color: Colors.white,
+                              )),
                         ],
                       ),
                     );
@@ -793,8 +816,8 @@ class _ProfileViewState extends State<ProfileView>
     List userPosts = [];
     TextEditingController postText = TextEditingController();
 
-    return Container(
-      height: size.height * 1.5,
+    return SizedBox(
+      height: size.height * 0.75,
       width: size.width,
       child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -803,12 +826,23 @@ class _ProfileViewState extends State<ProfileView>
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             final snapshotData = snapshot.data?.docs;
+            postCounts = snapshot.data?.docs.length.toString();
             if (snapshotData!.isEmpty) {
-              return Text("No Data",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * 0.08));
+              return Container(
+                color: Color.fromARGB(48, 114, 114, 114),
+                child: Column(
+                  children: [
+                    SizedBox(height: size.height * 0.2),
+                    Center(
+                      child: Text("You havent posted anything yet...",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: size.width * 0.05)),
+                    ),
+                  ],
+                ),
+              );
             } else {
               return ListView.builder(
                   itemCount: snapshotData.length,
@@ -817,7 +851,7 @@ class _ProfileViewState extends State<ProfileView>
 
                     // ignore: prefer_const_constructors, sized_box_for_whitespace
                     return Container(
-                        padding: EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
                         height: size.height * 0.60,
                         width: size.width * 0.20,
                         child: GestureDetector(
@@ -844,7 +878,7 @@ class _ProfileViewState extends State<ProfileView>
                                     //End of replace on main section
 
                                     if (snapshotData[index]["Img"] != "") ...[
-                                      Container(
+                                      SizedBox(
                                         width: size.width,
                                         child: Card(
                                           semanticContainer: true,
@@ -867,8 +901,8 @@ class _ProfileViewState extends State<ProfileView>
                                       color: Colors.black,
                                       child: Row(
                                         children: [
-                                          Spacer(),
-                                          Container(
+                                          const Spacer(),
+                                          SizedBox(
                                             width: size.width * 0.85,
                                             child: Text(
                                               snapshotData[index]["text"],
@@ -879,11 +913,11 @@ class _ProfileViewState extends State<ProfileView>
                                                   fontSize: size.width * 0.03),
                                             ),
                                           ),
-                                          Spacer()
+                                          const Spacer()
                                         ],
                                       ),
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                     _PostBottomRow(snapshotData, index),
                                     Container(
                                       height: size.height * 0.045,
@@ -938,7 +972,7 @@ class _ProfileViewState extends State<ProfileView>
                         print("Pressed Heart Button");
                       });
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.favorite_border,
                       color: Colors.red,
                     )),
@@ -949,7 +983,7 @@ class _ProfileViewState extends State<ProfileView>
                         print("Pressed Comment Button");
                       });
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.mode_comment_outlined,
                       color: Colors.grey,
                     )),
@@ -960,11 +994,11 @@ class _ProfileViewState extends State<ProfileView>
                         print("Pressed Save Button");
                       });
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.book_outlined,
                       color: Colors.grey,
                     )),
-                Spacer(),
+                const Spacer(),
                 IconButton(
                     color: Colors.white,
                     onPressed: () {
@@ -972,7 +1006,7 @@ class _ProfileViewState extends State<ProfileView>
                         print("Pressed Send Button");
                       });
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.send_rounded,
                       color: kPrimaryAccentColor,
                     )),
@@ -988,7 +1022,7 @@ class _ProfileViewState extends State<ProfileView>
                 ),
                 GestureDetector(
                   onTap: () {},
-                  child: Text(
+                  child: const Text(
                     "Likes: ",
                     style: TextStyle(color: Colors.white),
                   ),
@@ -997,14 +1031,14 @@ class _ProfileViewState extends State<ProfileView>
                   onTap: () {},
                   child: Text(
                     "${snapshotData[index]["LikesNum"]}",
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Spacer()
+                const Spacer()
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 3,
             ),
             Row(
@@ -1018,15 +1052,15 @@ class _ProfileViewState extends State<ProfileView>
                       print("Selected View Comments button");
                     });
                   },
-                  child: Text(
+                  child: const Text(
                     "View Comments...",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
-                Spacer()
+                const Spacer()
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 3,
             ),
           ],
@@ -1045,7 +1079,7 @@ class _ProfileViewState extends State<ProfileView>
     List userMotorcycles = [];
     // ignore: sized_box_for_whitespace
     return Container(
-      height: size.height,
+      height: size.height * 0.75,
       width: size.width,
       child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -1057,11 +1091,20 @@ class _ProfileViewState extends State<ProfileView>
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             final snapshotData = snapshot.data?.docs;
             if (snapshotData!.isEmpty) {
-              return Text("No Data",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width * 0.08));
+              return Container(
+                child: Column(
+                  children: [
+                    SizedBox(height: size.height * 0.2),
+                    Center(
+                      child: Text("You havent posted anything yet...",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: size.width * 0.05)),
+                    ),
+                  ],
+                ),
+              );
             }
 
             return ListView.builder(
@@ -1095,7 +1138,7 @@ class _ProfileViewState extends State<ProfileView>
                               ),
                               Column(
                                 children: [
-                                  SizedBox(height: 25),
+                                  const SizedBox(height: 25),
                                   Row(
                                     children: [
                                       SizedBox(
@@ -1112,7 +1155,7 @@ class _ProfileViewState extends State<ProfileView>
                                       )
                                     ],
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 10,
                                   ),
                                   Row(
@@ -1149,7 +1192,7 @@ class _ProfileViewState extends State<ProfileView>
     _tab2Controller = TabController(length: _tabs.length, vsync: this);
     //Working animation process
     animationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 8));
+        AnimationController(vsync: this, duration: const Duration(seconds: 8));
     animation =
         Tween<double>(begin: -500, end: 650).animate(animationController)
           ..addListener(() {
@@ -1157,34 +1200,39 @@ class _ProfileViewState extends State<ProfileView>
           });
 
     //second Animation steps
-    ac2 = AnimationController(vsync: this, duration: Duration(seconds: 10));
+    ac2 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 10));
     animation2 = Tween<double>(begin: -1250, end: 650).animate(ac2)
       ..addListener(() {
         setState(() {});
       });
     //third Animation steps
-    ac3 = AnimationController(vsync: this, duration: Duration(seconds: 9));
+    ac3 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 9));
     animation3 = Tween<double>(begin: -1050, end: 650).animate(ac3)
       ..addListener(() {
         setState(() {});
       });
 
     //fourth Animation steps
-    ac4 = AnimationController(vsync: this, duration: Duration(seconds: 7));
+    ac4 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 7));
     animation4 = Tween<double>(begin: -500, end: 750).animate(ac4)
       ..addListener(() {
         setState(() {});
       });
 
     //fifth Animation steps
-    ac5 = AnimationController(vsync: this, duration: Duration(seconds: 11));
+    ac5 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 11));
     animation5 = Tween<double>(begin: -1220, end: 750).animate(ac4)
       ..addListener(() {
         setState(() {});
       });
 
     //final Animation steps
-    ac6 = AnimationController(vsync: this, duration: Duration(seconds: 5));
+    ac6 =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5));
     animation6 = Tween<double>(begin: -1000, end: 750).animate(ac4)
       ..addListener(() {
         setState(() {});
@@ -1207,6 +1255,12 @@ class _ProfileViewState extends State<ProfileView>
   @override
   void dispose() {
     _tab2Controller.dispose();
+    animationController.dispose();
+    ac2.dispose();
+    ac3.dispose();
+    ac4.dispose();
+    ac5.dispose();
+    ac6.dispose();
     super.dispose();
   }
 
@@ -1231,6 +1285,8 @@ class _ProfileViewState extends State<ProfileView>
                   _GhostRider(size),
                 ] else if (snapshot.data["RiderType"] == "Squib") ...[
                   _SquibRider(size),
+                ] else ...[
+                  _StandardRider(size),
                 ],
 
 //                 //End of Animations
@@ -1242,131 +1298,147 @@ class _ProfileViewState extends State<ProfileView>
                         Column(
                           children: [
                             SizedBox(
-                              height: size.height * 0.07,
-                            ),
-                            CircleAvatar(
-                              radius: size.width * 0.15,
-                              backgroundImage:
-                                  NetworkImage(snapshot.data["profileImg"]),
+                              height: size.height * 0.06,
                             ),
                             SizedBox(
-                              height: size.height * 0.01,
+                              width: size.width,
+                              child: Row(children: [
+                                SizedBox(
+                                  width: size.width * 0.05,
+                                ),
+                                CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  radius: size.width * 0.10,
+                                  backgroundImage:
+                                      NetworkImage(profileImg.toString()),
+                                ),
+                                SizedBox(
+                                  width: size.width * 0.03,
+                                ),
+                                Text(
+                                  Auth().currentUser!.displayName as String,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: size.width * 0.075,
+                                  ),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SettingsScreen()),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ]),
                             ),
-                            Text(
-                              snapshot.data["userName"],
-                              style: TextStyle(
-                                color: kPrimaryColor,
-                                fontSize: size.width * 0.06,
+
+                            SizedBox(
+                              height: size.height * 0.025,
+                              width: size.width,
+                              child: Center(
+                                child: Text(
+                                  snapshot.data["Bio"],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: size.width * 0.05,
+                                  ),
+                                ),
                               ),
                             ),
 
                             SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            Text(
-                              snapshot.data["Bio"],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.width * 0.05,
+                              height: size.height * 0.1,
+                              width: size.width,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  //Break into four Columns
+                                  //Posts
+                                  Container(
+                                    padding: const EdgeInsets.all(10.0),
+                                    height: size.height * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "$postCounts",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.07),
+                                        ),
+                                        Text(
+                                          "Posts",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.04),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  //Friends
+                                  Container(
+                                    padding: const EdgeInsets.all(10.0),
+                                    height: size.height * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          friendsCount,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.07),
+                                        ),
+                                        Text(
+                                          "Friends",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.04),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  //rides
+
+                                  //rides
+                                  Container(
+                                    padding: const EdgeInsets.all(10.0),
+                                    height: size.height * 0.15,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          ridesCount,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.07),
+                                        ),
+                                        Text(
+                                          "Rides",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: size.width * 0.04),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
 
                             //This is the Row for the user information
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                //Break into four Columns
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.10,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Rides",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
 
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Friends",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Badges",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                //rides
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: size.height * 0.15,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "0",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.07),
-                                      ),
-                                      Text(
-                                        "Rides",
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: size.width * 0.04),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
                             TabBar(
                               labelColor: Colors.white,
                               indicatorColor: kPrimaryAccentColor,
@@ -1379,7 +1451,7 @@ class _ProfileViewState extends State<ProfileView>
                           height: size.height,
                           width: size.width,
                           child: TabBarView(
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             controller: _tab2Controller,
                             children: [
                               //If there are no posts
@@ -1400,7 +1472,7 @@ class _ProfileViewState extends State<ProfileView>
                               //Previous Rides
                               //Motorcycle Info
                               Container(
-                                  color: Colors.red,
+                                  color: Colors.black,
                                   child: SingleChildScrollView(
                                     child: Column(
                                       children: [
@@ -1424,7 +1496,7 @@ class _ProfileViewState extends State<ProfileView>
                                           snapshot.data["RiderType"] + " Rider",
                                           style: GoogleFonts.allura(
                                               fontStyle: FontStyle.normal,
-                                              textStyle: TextStyle(
+                                              textStyle: const TextStyle(
                                                   color: Color(0xff8c92ac),
                                                   fontSize: 35)),
                                         ),
@@ -1456,10 +1528,10 @@ class _ProfileViewState extends State<ProfileView>
           }
 
           return Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             width: size.width,
             height: size.height,
-            child: Column(
+            child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [CircularProgressIndicator()],
             ),

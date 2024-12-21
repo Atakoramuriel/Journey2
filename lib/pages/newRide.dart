@@ -1,12 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; //This is the push and pull
+//This is the push and pull
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
-import 'package:journey2/pages/ProfileView.dart';
-import 'package:journey2/pages/home_page.dart';
 
 class NewRide extends StatefulWidget {
   const NewRide({Key? key}) : super(key: key);
@@ -27,7 +21,7 @@ class _NewRideState extends State<NewRide> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Container(
+          child: const SizedBox(
             width: 200.0, // Set your desired width and height
             height: 200.0,
           ),
@@ -38,18 +32,99 @@ class _NewRideState extends State<NewRide> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 31, 31, 31),
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("New Ride"),
-        backgroundColor: const Color.fromARGB(255, 250, 183, 0),
+        title: const Text("Create New..."),
+        backgroundColor: kPrimaryAccentColor,
       ),
       body: Center(
-        child: ElevatedButton(
-          child: Text('Start New Ride'),
-          onPressed: () => _showDialog(context),
-        ),
-      ),
+          child: Column(
+        children: [
+          SizedBox(
+            height: size.height * 0.05,
+          ),
+          Card(
+            elevation: 50,
+            shadowColor: Colors.black,
+            color: const Color.fromARGB(255, 255, 0, 0),
+            child: SizedBox(
+              width: size.width * 0.8,
+              height: size.height * 0.15,
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    //SizedBox
+                    Text(
+                      'Ride Along Event',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Color.fromARGB(255, 94, 27, 27),
+                        fontWeight: FontWeight.w500,
+                      ), //Textstyle
+                    ), //Text
+                    SizedBox(
+                      height: 10,
+                    ), //SizedBox
+                    Text(
+                      'Invite other riders to join you on your Journey',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ), //Textstyle
+                    ), //Text
+                    SizedBox(
+                      height: 5,
+                    ), //SizedBox//SizedBox
+                  ],
+                ), //Column
+              ), //Padding
+            ), //SizedBox
+          ),
+          SizedBox(
+            height: size.height * 0.05,
+          ),
+          Card(
+            elevation: 50,
+            shadowColor: Colors.black,
+            color: const Color.fromARGB(255, 43, 255, 0),
+            child: SizedBox(
+              width: size.width * 0.8,
+              height: size.height * 0.15,
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    //SizedBox
+                    Text(
+                      'Free Ride',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Color.fromARGB(255, 27, 94, 42),
+                        fontWeight: FontWeight.w500,
+                      ), //Textstyle
+                    ), //Text
+                    SizedBox(
+                      height: 10,
+                    ), //SizedBox
+                    Text(
+                      'Share your location while you ride with other Riders',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(255, 31, 49, 39),
+                      ), //Textstyle
+                    ), //Text
+                    //SizedBox//SizedBox
+                  ],
+                ), //Column
+              ), //Padding
+            ), //SizedBox
+          ),
+        ],
+      )),
     );
   }
 }

@@ -1319,7 +1319,7 @@ class _AccountSetupState extends State<AccountSetup> {
     //Update the User INfo
     await FirebaseAuth.instance.currentUser
         ?.updateDisplayName(_usernameController.text)
-        .whenComplete(() => {print("Username updated")});
+        .whenComplete(() => print("Username updated"));
 
     //Update the DB
     await FirebaseFirestore.instance
@@ -1330,19 +1330,16 @@ class _AccountSetupState extends State<AccountSetup> {
       "userName": _usernameController.text,
       "profileImg": selectedImg,
       "Bio": _bioController.text,
-    }).whenComplete(() => {
-              //You need to add the bike to collections
-              FirebaseFirestore.instance
-                  .collection("Riders")
-                  .doc(currentUser?.uid)
-                  .collection("Motorcycles")
-                  .add({
-                "Make": _motoMakeController.text,
-                "Model": _motoModelController.text,
-                "Year": _motoYearController.text,
-                "Color": _motoColorController.text
-              }).whenComplete(() => {_profileComplete()})
-            });
+    }).whenComplete(() => FirebaseFirestore.instance
+                .collection("Riders")
+                .doc(currentUser?.uid)
+                .collection("Motorcycles")
+                .add({
+              "Make": _motoMakeController.text,
+              "Model": _motoModelController.text,
+              "Year": _motoYearController.text,
+              "Color": _motoColorController.text
+            }).whenComplete(() => _profileComplete()));
   }
 
   Widget _FinishButton() {
@@ -1420,7 +1417,7 @@ class _AccountSetupState extends State<AccountSetup> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         backgroundColor: kBackgroundColor,
-        body: Container(
+        body: SizedBox(
           height: size.height,
           width: size.width,
           child: Stack(
@@ -1640,7 +1637,7 @@ class _AccountSetupState extends State<AccountSetup> {
                                     height: 10,
                                   ),
                                   DropdownButton<String>(
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white, fontSize: 20),
                                     dropdownColor:
                                         const Color.fromARGB(255, 58, 19, 16),
@@ -1670,7 +1667,7 @@ class _AccountSetupState extends State<AccountSetup> {
                                   ),
                                   //Get Color
                                   DropdownButton<String>(
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white, fontSize: 20),
                                     dropdownColor:
                                         const Color.fromARGB(255, 58, 19, 16),
@@ -1694,7 +1691,7 @@ class _AccountSetupState extends State<AccountSetup> {
                                   ),
                                   //Get Year
                                   DropdownButton<String>(
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white, fontSize: 20),
                                     dropdownColor:
                                         const Color.fromARGB(255, 58, 19, 16),

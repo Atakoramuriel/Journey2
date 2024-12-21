@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart'; //This is the push and pull
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
-import 'package:journey2/pages/ProfileView.dart';
 import 'package:journey2/pages/home_page.dart';
 
 class NewPost extends StatefulWidget {
@@ -62,20 +59,19 @@ class _NewPostState extends State<NewPost> {
   //Speed Run Firebase Save
   Future<void> _postToFirebase() async {
     var currentUser = Auth().currentUser;
-    var now = new DateTime.now();
-    var formatDate = new DateFormat('mm/dd/yyyy - kk:mm');
+    var now = DateTime.now();
+    var formatDate = DateFormat('mm/dd/yyyy - kk:mm');
     String cleanDate = formatDate.format(now);
     await FirebaseFirestore.instance.collection("Posts").add({
       "userKey": currentUser?.uid,
       "text": _newPostTextController.text,
       'date': cleanDate.toString(),
       "TimeStamp": "Thu JUN 8 7:08PM"
-    }).whenComplete(() => {
-          Navigator.push(
+    }).whenComplete(() => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(builder: (context) => const HomePage()),
           )
-        });
+        );
   }
 
   //This is the display of how to upload an image
@@ -123,7 +119,7 @@ class _NewPostState extends State<NewPost> {
                   color: kBackgroundColor2,
                   width: size.width * 0.9,
                   height: size.height * 0.9,
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
