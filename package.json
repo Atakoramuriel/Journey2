@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "cocoapods": "^0.0.0",
+    "flutter": "^0.0.5"
+  }
+}
