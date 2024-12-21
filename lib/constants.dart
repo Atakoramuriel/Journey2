@@ -9,6 +9,7 @@ const kBackgroundColor2 = Color.fromARGB(255, 16, 3, 3);
 const kBlueShade = Color(0xff0D183C);
 
 const kNightCard = Color.fromARGB(255, 52, 8, 25);
+const kSly = Color.fromARGB(255, 82, 55, 55);
 
 //Area for text inputs
 const kTextInputBackgroundColor = Color.fromARGB(255, 209, 209, 211);

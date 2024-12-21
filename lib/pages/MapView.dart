@@ -1029,19 +1029,22 @@ class _MapViewState extends State<MapView>
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: kNightCard,
-                        borderRadius: BorderRadius.circular(4),
+                        color: kSly,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(1.0),
                         child: Column(
                           children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(width: 1),
+                                const SizedBox(width: 5),
                                 CircleAvatar(
-                                  radius: 40,
+                                  radius: 35,
                                   backgroundImage:
                                       NetworkImage(profileImageUrl),
                                 ),
@@ -1050,7 +1053,7 @@ class _MapViewState extends State<MapView>
                                   riderUsername,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 15,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1088,28 +1091,28 @@ class _MapViewState extends State<MapView>
                     child: Container(
                       decoration: BoxDecoration(
                         color: ui.Color.fromARGB(255, 26, 123, 202),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(1.0),
                         child: Column(
                           children: [
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 CircleAvatar(
-                                  radius: 30,
+                                  radius: 10,
                                   backgroundImage:
                                       NetworkImage(profileImageUrl),
                                 ),
-                                SizedBox(width: 8.0),
+                                const SizedBox(width: 8.0),
                                 Text(
                                   riderUsername,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 15,
+                                    fontSize: 35,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -1318,14 +1321,14 @@ class _MapViewState extends State<MapView>
                 ),
                 CustomInfoWindow(
                   controller: _customInfoWindowController,
-                  height: size.height * 0.20,
-                  width: size.width * 0.8,
+                  height: size.height * 0.15,
+                  width: size.width * 0.60,
                   offset: 0,
                 ),
                 CustomInfoWindow(
                   controller: _customInfoRideAlongController,
                   height: size.height * 0.20,
-                  width: size.width * 0.85,
+                  width: size.width * 0.65,
                   offset: 0,
                 ),
                 Positioned(

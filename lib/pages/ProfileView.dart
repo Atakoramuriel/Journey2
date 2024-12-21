@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:journey2/pages/settings_screen.dart';
 
 class Rider {
   String username;
-  String profileImage;
+  String profileImage = Auth().currentUser!.photoURL.toString();
   String bio;
   Rider(
       {required this.username, required this.profileImage, required this.bio});
@@ -89,11 +90,10 @@ class _ProfileViewState extends State<ProfileView>
   late AnimationController animationController, ac2, ac3, ac4, ac5, ac6;
 
   late TabController _tab2Controller;
-  late ScrollController _scrollController;
   var userID = FirebaseAuth.instance.currentUser?.uid;
   var userEmail = FirebaseAuth.instance.currentUser?.email;
   var profileImg = FirebaseAuth.instance.currentUser!.photoURL;
-  var username = FirebaseAuth.instance.currentUser!.displayName;
+  var username = Auth().currentUser!.displayName as String;
 
   var postCounts;
   var friendsCount = "0";
@@ -121,7 +121,7 @@ class _ProfileViewState extends State<ProfileView>
                       child: Container(
                         height: size.height * 0.005,
                         width: size.width * 1.2,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.65),
                       )),
                 ],
               ),
@@ -139,7 +139,7 @@ class _ProfileViewState extends State<ProfileView>
                       child: Container(
                         height: size.height * 0.005,
                         width: size.width * 1.9,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.65),
                       )),
                 ],
               ),
@@ -157,7 +157,7 @@ class _ProfileViewState extends State<ProfileView>
                       child: Container(
                         height: size.height * 0.005,
                         width: size.width * 0.09,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.65),
                       )),
                 ],
               ),
@@ -194,7 +194,7 @@ class _ProfileViewState extends State<ProfileView>
                     child: Container(
                       height: size.height * 0.005,
                       width: size.width * 0.03,
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.65),
                     ),
                   ),
                 ],
@@ -213,7 +213,7 @@ class _ProfileViewState extends State<ProfileView>
                     child: Container(
                       height: size.height * 0.005,
                       width: size.width * 0.4,
-                      color: Colors.red.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.65),
                     ),
                   ),
                 ],
@@ -771,14 +771,14 @@ class _ProfileViewState extends State<ProfileView>
                               padding: const EdgeInsets.all(3),
                               child: CircleAvatar(
                                 backgroundImage: NetworkImage(
-                                    snapshotData[index]['profileImg']),
+                                    Auth().currentUser!.photoURL as String),
                                 radius: size.width * 0.085,
                               )),
                           SizedBox(
                             width: size.width * 0.01,
                           ),
                           Text(
-                            snapshotData[index]["userName"],
+                            Auth().currentUser!.displayName as String,
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -829,7 +829,7 @@ class _ProfileViewState extends State<ProfileView>
             postCounts = snapshot.data?.docs.length.toString();
             if (snapshotData!.isEmpty) {
               return Container(
-                color: Color.fromARGB(49, 165, 14, 3),
+                color: Color.fromARGB(48, 114, 114, 114),
                 child: Column(
                   children: [
                     SizedBox(height: size.height * 0.2),
@@ -1307,18 +1307,19 @@ class _ProfileViewState extends State<ProfileView>
                                   width: size.width * 0.05,
                                 ),
                                 CircleAvatar(
+                                  backgroundColor: Colors.white,
                                   radius: size.width * 0.10,
                                   backgroundImage:
-                                      NetworkImage(snapshot.data["profileImg"]),
+                                      NetworkImage(profileImg.toString()),
                                 ),
                                 SizedBox(
                                   width: size.width * 0.03,
                                 ),
                                 Text(
-                                  snapshot.data["userName"],
+                                  Auth().currentUser!.displayName as String,
                                   style: TextStyle(
-                                    color: kPrimaryColor,
-                                    fontSize: size.width * 0.055,
+                                    color: Colors.white,
+                                    fontSize: size.width * 0.075,
                                   ),
                                 ),
                                 const Spacer(),

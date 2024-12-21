@@ -95,13 +95,13 @@ class _HomePageState extends State<HomePage> {
             }
           });
         },
-        backgroundColor: const Color.fromARGB(255, 0, 98, 255),
+        backgroundColor: Color.fromARGB(255, 82, 29, 29),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
-        color: Colors.purple[900],
+        color: Color.fromARGB(255, 45, 28, 28),
         child: SizedBox(
           height: size.height * 0.07,
           width: size.width,
