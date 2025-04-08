@@ -101,18 +101,14 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 10,
-        color: Color.fromARGB(255, 45, 28, 28),
+        color: Color.fromARGB(255, 22, 22, 22),
         child: SizedBox(
           height: size.height * 0.07,
           width: size.width,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              SizedBox(
-                width: size.width,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                              
                     MaterialButton(
                       minWidth: 30,
                       onPressed: () {
@@ -126,17 +122,15 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Icon(
                             currentTab == 0 ? Icons.home : Icons.home_outlined,
-                            size: 35,
+                            size: 30,
                             color: currentTab == 0 ? Colors.amber : Colors.grey,
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(
-                      width: size.width * 0.02,
-                    ),
+                 
                     MaterialButton(
-                      minWidth: 40,
+                      minWidth: 30,
                       onPressed: () {
                         setState(() {
                           currentTab = 1;
@@ -155,10 +149,11 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    // SizedBox(
-                    //   width: size.width * 0.3,
-                    // ),
-                    const Spacer(),
+                  
+
+              // MIDDLE
+                    SizedBox(width: size.width * 0.1,),
+
                     MaterialButton(
                         minWidth: 30,
                         onPressed: () {
@@ -177,8 +172,9 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         )),
+
                     MaterialButton(
-                      minWidth: 40,
+                      minWidth: 30,
                       onPressed: () {
                         setState(() {
                           // currentScreen = Profile();
@@ -203,9 +199,7 @@ class _HomePageState extends State<HomePage> {
                         //end of removal
                       ),
                     ),
-                  ],
-                ),
-              )
+                   
             ],
           ),
         ),

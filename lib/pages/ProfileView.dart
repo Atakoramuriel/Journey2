@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +7,7 @@ import 'package:journey2/auth.dart';
 import 'package:journey2/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:journey2/pages/settings_screen.dart';
+import 'package:journey2/widgets/rider_card.dart';
 
 class Rider {
   String username;
@@ -1275,21 +1278,25 @@ class _ProfileViewState extends State<ProfileView>
                 body: Stack(
               children: [
                 //Start of Animations
-                if (snapshot.data["RiderType"] == "Standard") ...[
-                  _StandardRider(size),
-                ] else if (snapshot.data["RiderType"] == "Traveler") ...[
-                  _TravelerRider(size),
-                ] else if (snapshot.data["RiderType"] == "Night") ...[
-                  _NightRider(size),
-                ] else if (snapshot.data["RiderType"] == "Ghost") ...[
-                  _GhostRider(size),
-                ] else if (snapshot.data["RiderType"] == "Squib") ...[
-                  _SquibRider(size),
-                ] else ...[
-                  _StandardRider(size),
-                ],
+                // if (snapshot.data["RiderType"] == "Standard") ...[
+                //   _StandardRider(size),
+                // ] else if (snapshot.data["RiderType"] == "Traveler") ...[
+                //   _TravelerRider(size),
+                // ] else if (snapshot.data["RiderType"] == "Night") ...[
+                //   _NightRider(size),
+                // ] else if (snapshot.data["RiderType"] == "Ghost") ...[
+                //   _GhostRider(size),
+                // ] else if (snapshot.data["RiderType"] == "Squib") ...[
+                //   _SquibRider(size),
+                // ] else ...[
+                //   _StandardRider(size),
+                // ],
 
 //                 //End of Animations
+
+
+
+                //Old Card Method
                 SizedBox(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -1300,6 +1307,11 @@ class _ProfileViewState extends State<ProfileView>
                             SizedBox(
                               height: size.height * 0.06,
                             ),
+                //New Card Method 
+                RiderCard(title: Auth().currentUser!.displayName as String, desc: snapshot.data['Bio'], imageUrl: profileImg.toString(), cardColor: Color.fromARGB(255, 38, 0, 133),),
+
+
+                            SizedBox(height: size.height * 0.06),
                             SizedBox(
                               width: size.width,
                               child: Row(children: [
@@ -1463,7 +1475,7 @@ class _ProfileViewState extends State<ProfileView>
                                     // SizedBox(
                                     //   height: size.height * 0.05,
                                     // ),
-                                    _UserPosts()
+                                    //_UserPosts()
                                   ],
                                 ),
                               )),

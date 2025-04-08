@@ -797,7 +797,7 @@ class _MapViewState extends State<MapView>
       return byteData!.buffer.asUint8List();
     } catch (e) {
       print("Error fetching or processing marker image: $e");
-      return (await rootBundle.load('assets/default_marker.png'))
+      return (await rootBundle.load('assets/icons/Chat'))
           .buffer
           .asUint8List();
     }
